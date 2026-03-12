@@ -1,4 +1,4 @@
-// OS_cmd 的公共接口与常量定义
+﻿// OS_cmd 的公共接口与常量定义
 
 #pragma once
 

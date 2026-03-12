@@ -1,4 +1,4 @@
-#include"OS_cmd.h"
+#include "OS_cmd.h"
 #include <stdarg.h>
 
 //========================
@@ -34,6 +34,7 @@ char *self_fgets(char *buffer, int size) {
 int self_system(const char *command) {
     return system(command);            // 目前直接使用标准库 system
 }
+
 
 
 //========================
@@ -119,7 +120,7 @@ char *get_echo_message(char *cmd) {
 // “内核”/终端业务逻辑
 //========================
 
-void help() {
+void help(void) {
     self_printf("可用命令:\n");
     self_printf("  help       查看帮助\n");
     self_printf("  clear      清屏\n");
@@ -129,7 +130,7 @@ void help() {
     self_printf("  exit       退出终端\n");
 }
 
-void clear() {
+void clear(void) {
     self_system("cls");
 }
 
@@ -137,7 +138,7 @@ void echo(const char *msg) {
     self_printf("%s\n", msg);
 }
 
-void dir() {
+void dir(void) {
     self_printf("  目录: C:\\MiniOS\\\n");
     self_printf("  kernel.sys\n");
     self_printf("  shell.exe\n");
@@ -145,7 +146,7 @@ void dir() {
     self_printf("  boot.ini\n");
 }
 
-void sysinfo() {
+void sysinfo(void) {
     self_printf("=== 系统信息 ===\n");
     self_printf("OS    : MiniOS 1.0\n");
     self_printf("Build : 2026\n");
@@ -153,12 +154,10 @@ void sysinfo() {
     self_printf("Compiler: MSVC (C)\n");
 }
 
-void welcome() {
+void welcome(void) {
     clear();
     self_printf("========================================\n");
     self_printf("       Mini OS Terminal (纯 C/VS)       \n");
     self_printf("          输入 help 查看命令            \n");
     self_printf("========================================\n");
 }
-
-
