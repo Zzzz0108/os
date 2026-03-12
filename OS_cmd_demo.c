@@ -9,10 +9,10 @@ int main(void) {
         if (!self_fgets(cmd, MAX_CMD))
             break;
 
-        // 去掉换行
+        // remove trailing newline
         remove_newline(cmd);
 
-        // 分割第一个单词
+        // extract first word
         char op[MAX_CMD] = {0};
         get_first_word(cmd, op, MAX_CMD);
 
@@ -28,10 +28,10 @@ int main(void) {
         } else if (strings_equal(op, "sysinfo")) {
             sysinfo();
         } else if (strings_equal(op, "exit")) {
-            self_printf("退出终端...\n");
+            self_printf("Exiting terminal...\n");
             break;
         } else if (op[0] != '\0') {
-            self_printf("不支持的命令: %s\n", op);
+            self_printf("Unsupported command: %s\n", op);
         }
     }
     return 0;
