@@ -5,7 +5,6 @@
 // Basic headers (simulated OS + C standard library)
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 
 #define MAX_CMD 1024
