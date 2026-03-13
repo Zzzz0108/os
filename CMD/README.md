@@ -2,6 +2,12 @@
 
 ## 终端
 
+demo:
+cl /I include src\OS_cmd_demo.c src\OS_cmd.c
+run:
+./OS_cmd_demo.exe
+
+
 本模块在 Windows 控制台上模拟一个简化的「操作系统终端」，支持 help、clear、echo、dir、sysinfo、exit 等基础命令，用于演示从「系统调用封装层」到「终端命令解析」再到「交互循环」的完整链路。
 
 ### 文件结构概览
