@@ -1,5 +1,5 @@
 #include "OS_cmd.h"
-#include <stdarg.h>
+
 
 //========================
 // self_* system call wrapper layer
