@@ -10,7 +10,8 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "D:\\Microsoft_VisualStudio\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostarm64\\arm64\\cl.exe"
+            "compilerPath": "D:\\mingw64\\bin\\gcc.exe",
+            "intelliSenseMode": "windows-gcc-x64"
         }
     ],
     "version": 4
