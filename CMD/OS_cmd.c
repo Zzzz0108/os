@@ -1,8 +1,8 @@
-#include"OS_cmd.h"
+#include "OS_cmd.h"
 #include <stdarg.h>
 
 //========================
-// self_* 系统调用封装层
+// self_* system call wrapper layer
 //========================
 
 int self_printf(const char *format, ...) {
@@ -10,7 +10,7 @@ int self_printf(const char *format, ...) {
     va_list args;
 
     va_start(args, format);
-    ret = vprintf(format, args);   // 目前直接使用标准库 vprintf
+    ret = vprintf(format, args);   // currently use standard vprintf
     va_end(args);
 
     return ret;
@@ -21,27 +21,27 @@ int self_scanf(const char *format, ...) {
     va_list args;
 
     va_start(args, format);
-    ret = vscanf(format, args);    // 目前直接使用标准库 vscanf
+    ret = vscanf(format, args);    // currently use standard vscanf
     va_end(args);
 
     return ret;
 }
 
 char *self_fgets(char *buffer, int size) {
-    return fgets(buffer, size, stdin); // 目前直接使用标准库 fgets
+    return fgets(buffer, size, stdin); // currently use standard fgets
 }
 
 int self_system(const char *command) {
-    return system(command);            // 目前直接使用标准库 system
+    return system(command);            // currently use standard system
 }
 
 
+
 //========================
-// 本文件内部的简单字符串工具
-// 只做命令解析，不调用标准库函数
+// Simple string utilities used only in this file
 //========================
 
-// 去掉字符串里的回车/换行（就地修改）
+// Remove CR/LF characters in-place
 void remove_newline(char *s) {
     int i = 0;
     if (!s) return;
@@ -54,19 +54,19 @@ void remove_newline(char *s) {
     }
 }
 
-// 从 src 中取出第一个单词，写入 dst
+// Extract first word from src into dst
 void get_first_word(const char *src, char *dst, int dstSize) {
     int i = 0;
     int j = 0;
 
     if (!src || !dst || dstSize <= 0) return;
 
-    // 跳过前导空白
+    // skip leading whitespace
     while (src[i] == ' ' || src[i] == '\t') {
         ++i;
     }
 
-    // 复制第一个单词
+    // copy first word
     while (src[i] != '\0' && src[i] != ' ' && src[i] != '\t') {
         if (j < dstSize - 1) {
             dst[j++] = src[i];
@@ -76,7 +76,7 @@ void get_first_word(const char *src, char *dst, int dstSize) {
     dst[j] = '\0';
 }
 
-// 判断两个以 '\0' 结尾的字符串是否完全相等
+// Compare two null-terminated strings for equality
 int strings_equal(const char *a, const char *b) {
     int i = 0;
     if (!a || !b) return 0;
@@ -91,45 +91,43 @@ int strings_equal(const char *a, const char *b) {
     return (a[i] == '\0' && b[i] == '\0');
 }
 
-// 从整行命令中跳过 "echo" 以及之后的空白，返回要输出的消息部分
+// Skip "echo" keyword and following spaces, return message part
 char *get_echo_message(char *cmd) {
     char *p = cmd;
     if (!p) return NULL;
 
-    // 跳过前导空白
+    // skip leading whitespace
     while (*p == ' ' || *p == '\t') {
         ++p;
     }
 
-    // 跳过第一个单词（例如 "echo"）
+    // skip first word (e.g. "echo")
     while (*p != '\0' && *p != ' ' && *p != '\t') {
         ++p;
     }
 
-    // 再跳过空白，剩下的就是参数部分
+    // then skip whitespace, the rest is the argument
     while (*p == ' ' || *p == '\t') {
         ++p;
     }
 
     return p;
 }
-
-
 //========================
-// “内核”/终端业务逻辑
+// "Kernel" / terminal logic
 //========================
 
-void help() {
-    self_printf("可用命令:\n");
-    self_printf("  help       查看帮助\n");
-    self_printf("  clear      清屏\n");
-    self_printf("  echo ...   输出文字\n");
-    self_printf("  dir        显示目录\n");
-    self_printf("  sysinfo    系统信息\n");
-    self_printf("  exit       退出终端\n");
+void help(void) {
+    self_printf("Available commands:\n");
+    self_printf("  help       Show help\n");
+    self_printf("  clear      Clear screen\n");
+    self_printf("  echo ...   Print text\n");
+    self_printf("  dir        Show directory\n");
+    self_printf("  sysinfo    System information\n");
+    self_printf("  exit       Exit terminal\n");
 }
 
-void clear() {
+void clear(void) {
     self_system("cls");
 }
 
@@ -137,28 +135,26 @@ void echo(const char *msg) {
     self_printf("%s\n", msg);
 }
 
-void dir() {
-    self_printf("  目录: C:\\MiniOS\\\n");
+void dir(void) {
+    self_printf("  Directory: C:\\MiniOS\\\n");
     self_printf("  kernel.sys\n");
     self_printf("  shell.exe\n");
     self_printf("  user.cfg\n");
     self_printf("  boot.ini\n");
 }
 
-void sysinfo() {
-    self_printf("=== 系统信息 ===\n");
+void sysinfo(void) {
+    self_printf("=== System Information ===\n");
     self_printf("OS    : MiniOS 1.0\n");
     self_printf("Build : 2026\n");
     self_printf("Shell : Terminal\n");
     self_printf("Compiler: MSVC (C)\n");
 }
 
-void welcome() {
+void welcome(void) {
     clear();
     self_printf("========================================\n");
-    self_printf("       Mini OS Terminal (纯 C/VS)       \n");
-    self_printf("          输入 help 查看命令            \n");
+    self_printf("       Mini OS Terminal (C/VS)          \n");
+    self_printf("          Type 'help' for commands      \n");
     self_printf("========================================\n");
 }
-
-
