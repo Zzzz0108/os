@@ -36,7 +36,7 @@ void run_process()
         proc = scheduler();
         if (proc == NULL)
         {
-            printf("No process to run\n");
+            //printf("No process to run\n");
             return;
         }
     }
