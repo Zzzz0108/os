@@ -27,6 +27,8 @@ int main(void) {
             dir();
         } else if (strings_equal(op, "sysinfo")) {
             sysinfo();
+        } else if (strings_equal(op, "meminfo")) { // 【新增这三行】
+            meminfo(); 
         } else if (strings_equal(op, "exit")) {
             self_printf("Exiting terminal...\n");
             break;

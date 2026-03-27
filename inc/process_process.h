@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include "process_config.h"
 #include "process_queue.h"
+#include "mem.h"
 
-/* ========= ½ø³Ì×´Ì¬ ========= */
+/* ========= ï¿½ï¿½ï¿½ï¿½×´Ì¬ ========= */
 typedef enum {
     PROCESS_NEW = 0,
     PROCESS_READY,
@@ -20,28 +21,27 @@ typedef struct PCB {
     char name[MAX_NAME_LEN];
     ProcessState state;
 
-    /* µ÷¶È */
+    /* ï¿½ï¿½ï¿½ï¿½ */
     int queue_level;
     int total_time;
     int remaining_time;
     int time_slice_used;
 
-    /* CPU×´Ì¬£¨Ä£Äâ£© */
+    /* CPU×´Ì¬ï¿½ï¿½Ä£ï¿½â£© */
     int pc;
     int registers[8];
 
-    /* ÄÚ´æÐÅÏ¢ */
-    void* mem_base;
-    int mem_size;
-
-    /* ÎÄ¼þÐÅÏ¢ */
+    /* ï¿½Ú´ï¿½ï¿½ï¿½Ï¢ */
+    MemControlBlock* mcb;
+    
+    /* ï¿½Ä¼ï¿½ï¿½ï¿½Ï¢ */
     int open_files[MAX_OPEN_FILES];
 
-    /* Á´±í */
+    /* ï¿½ï¿½ï¿½ï¿½ */
     struct PCB* next;
 } PCB;
 
-/* ========= ½ø³Ì¹ÜÀíÆ÷ ========= */
+/* ========= ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ ========= */
 typedef struct {
     Queue ready[MLFQ_LEVELS];
     Queue blocked;
@@ -49,26 +49,26 @@ typedef struct {
     int pid_counter;
 } ProcessManager;
 
-/* ========= ³õÊ¼»¯ ========= */
+/* ========= ï¿½ï¿½Ê¼ï¿½ï¿½ ========= */
 void process_manager_init();
 
-/* ========= ½ø³Ì²Ù×÷ ========= */
+/* ========= ï¿½ï¿½ï¿½Ì²ï¿½ï¿½ï¿½ ========= */
 PCB* process_create(const char* name, int runtime);
 void process_destroy(PCB* proc);
 
-/* ========= ×´Ì¬±ä»¯ ========= */
+/* ========= ×´Ì¬ï¿½ä»¯ ========= */
 void process_block(PCB* proc);
 void process_wakeup(PCB* proc);
 
-/* ========= µ÷¶È ========= */
+/* ========= ï¿½ï¿½ï¿½ï¿½ ========= */
 PCB* scheduler();
 void run_process();
 
-/* ========= µ÷ÊÔ ========= */
+/* ========= ï¿½ï¿½ï¿½ï¿½ ========= */
 void print_process(PCB* proc);
 void print_system_state();
 
-/* ========= È«¾Ö½ø³Ì¹ÜÀíÆ÷ ========= */
+/* ========= È«ï¿½Ö½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ ========= */
 extern ProcessManager pm;
 
 #endif

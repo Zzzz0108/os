@@ -1,4 +1,5 @@
 #include "../../inc/cmd.h"
+#include "../../inc/mem.h"
 
 
 //========================
@@ -124,6 +125,7 @@ void help(void) {
     self_printf("  echo ...   Print text\n");
     self_printf("  dir        Show directory\n");
     self_printf("  sysinfo    System information\n");
+    self_printf("  meminfo    Memory system status\n");
     self_printf("  exit       Exit terminal\n");
 }
 
@@ -149,6 +151,10 @@ void sysinfo(void) {
     self_printf("Build : 2026\n");
     self_printf("Shell : Terminal\n");
     self_printf("Compiler: MSVC (C)\n");
+}
+
+void meminfo(void) {
+    print_mem_status(); // 调用你写好的函数打印命中率和占用
 }
 
 void welcome(void) {
