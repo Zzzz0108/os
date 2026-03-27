@@ -1,4 +1,4 @@
-#include "../include/os_sync.h"
+#include "../../inc/mem_sync.h"
 #include <windows.h>
 #include <stdlib.h>
 

@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <time.h>
-#include "../include/memory.h"
-#include "../include/os_sync.h"
+#include "../../inc/mem.h"
+#include "../../inc/mem_sync.h"
 
 /* 全局共享资源 */
 os_mutex_t mem_lock;

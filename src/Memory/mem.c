@@ -1,5 +1,5 @@
-#include "../include/memory.h"
-#include "../include/os_sync.h"
+#include "../../inc/mem.h"
+#include "../../inc/mem_sync.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
