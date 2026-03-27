@@ -173,3 +173,43 @@ void print_mem_status(void) {
     printf("空闲页框位图: 0x%08X\n", free_frame_bitmap);
     printf("--------------------\n");
 }
+
+/* 为新进程分配内存控制块及初始页表 */
+MemControlBlock* create_process_memory(uint32_t pid) {
+    MemControlBlock* mcb = (MemControlBlock*)malloc(sizeof(MemControlBlock));
+    if (!mcb) return NULL;
+    
+    mcb->pid = pid;
+    mcb->seg_count = 2; // 默认分配两个段：段0(代码段)，段1(数据段)
+    mcb->segment_table = (STE*)malloc(sizeof(STE) * mcb->seg_count);
+
+    // 段0：模拟代码段，分配 4 个逻辑页
+    mcb->segment_table[0].length = 4;
+    mcb->segment_table[0].page_table = (PTE*)calloc(4, sizeof(PTE));
+
+    // 段1：模拟数据段，分配 8 个逻辑页
+    mcb->segment_table[1].length = 8;
+    mcb->segment_table[1].page_table = (PTE*)calloc(8, sizeof(PTE));
+
+    return mcb;
+}
+
+/* 进程销毁时，回收物理内存和核心数据结构 */
+void destroy_process_memory(MemControlBlock* mcb) {
+    if (!mcb) return;
+    
+    // 遍历所有段和页，释放占用的物理页框
+    for (uint32_t i = 0; i < mcb->seg_count; i++) {
+        for (uint32_t j = 0; j < mcb->segment_table[i].length; j++) {
+            PTE* pte = &mcb->segment_table[i].page_table[j];
+            if (pte->valid == 1) {
+                // 清除物理页框的占用位图
+                free_frame_bitmap &= ~(1 << pte->frame_num);
+                frame_reverse_map[pte->frame_num] = NULL;
+            }
+        }
+        free(mcb->segment_table[i].page_table);
+    }
+    free(mcb->segment_table);
+    free(mcb);
+}
