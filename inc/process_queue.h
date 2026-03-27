@@ -2,7 +2,7 @@
 #define QUEUE_H
 
 #include <stdio.h>
-#include "config.h"
+#include "process_config.h"
 
 /* Ç°ÏòÉùÃ÷ */
 

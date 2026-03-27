@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../../inc/cmd.h"
 
 /* 全局变量定义 */
 static uint8_t* physical_memory = NULL;
@@ -164,14 +165,14 @@ int write_memory(MemControlBlock* mcb, uint32_t logical_addr, uint8_t data) {
 }
 
 void print_mem_status(void) {
-    printf("--- 内存系统状态 ---\n");
-    printf("总物理页: %d, 页面大小: 1KB\n", total_phys_pages);
-    printf("总访问次数: %d, 缺页次数: %d\n", memory_accesses, page_faults);
+    self_printf("--- 内存系统状态 ---\n");
+    self_printf("总物理页: %d, 页面大小: 1KB\n", total_phys_pages);
+    self_printf("总访问次数: %d, 缺页次数: %d\n", memory_accesses, page_faults);
     if (memory_accesses > 0) {
-        printf("缺页率: %.2f%%\n", (float)page_faults / memory_accesses * 100);
+        self_printf("缺页率: %.2f%%\n", (float)page_faults / memory_accesses * 100);
     }
-    printf("空闲页框位图: 0x%08X\n", free_frame_bitmap);
-    printf("--------------------\n");
+    self_printf("空闲页框位图: 0x%08X\n", free_frame_bitmap);
+    self_printf("--------------------\n");
 }
 
 /* 为新进程分配内存控制块及初始页表 */

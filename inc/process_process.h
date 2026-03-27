@@ -2,8 +2,8 @@
 #define PROCESS_H
 
 #include <stdio.h>
-#include "config.h"
-#include "queue.h"
+#include "process_config.h"
+#include "process_queue.h"
 
 /* ========= ½ø³Ì×´Ì¬ ========= */
 typedef enum {

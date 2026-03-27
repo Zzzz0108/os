@@ -1,5 +1,5 @@
-#include "os_interface.h"
-#include "process.h"
+#include "../../inc/process_interface.h"
+#include "../../inc/process_process.h"
 
 /* ²âÊÔ½ø³Ì1 */
 void process_A()

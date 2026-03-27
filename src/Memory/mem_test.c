@@ -4,6 +4,7 @@
 #include <time.h>
 #include "../../inc/mem.h"
 #include "../../inc/mem_sync.h"
+#include "../../inc/cmd.h"
 
 /* 全局共享资源 */
 os_mutex_t mem_lock;
@@ -32,10 +33,10 @@ DWORD WINAPI MemoryAccessThread(LPVOID lpParam) {
         // 随机决定是读操作还是写操作
         int is_write = rand() % 2;
         if (is_write) {
-            printf("[访问线程] 执行写操作 -> 逻辑地址: 0x%08X, 数据: 0x%02X\n", logical_addr, data_to_write);
+            self_printf("[访问线程] 执行写操作 -> 逻辑地址: 0x%08X, 数据: 0x%02X\n", logical_addr, data_to_write);
             write_memory(current_mcb, logical_addr, data_to_write);
         } else {
-            printf("[访问线程] 执行读操作 -> 逻辑地址: 0x%08X\n", logical_addr);
+            self_printf("[访问线程] 执行读操作 -> 逻辑地址: 0x%08X\n", logical_addr);
             read_memory(current_mcb, logical_addr, &read_data);
         }
 
@@ -53,7 +54,7 @@ DWORD WINAPI MemoryAccessThread(LPVOID lpParam) {
 DWORD WINAPI MonitorThread(LPVOID lpParam) {
     while (simulation_running) {
         os_mutex_lock(mem_lock);
-        printf("\n========== [监控线程] 捕获内存快照 ==========\n");
+        self_printf("\n========== [监控线程] 捕获内存快照 ==========\n");
         print_mem_status();
         os_mutex_unlock(mem_lock);
         
@@ -63,7 +64,7 @@ DWORD WINAPI MonitorThread(LPVOID lpParam) {
 }
 
 int main() {
-    printf("=== 操作系统课程设计：段页式内存管理模拟 ===\n");
+    self_printf("=== 操作系统课程设计：段页式内存管理模拟 ===\n");
 
     // 1. 初始化同步锁
     mem_lock = os_mutex_create();
@@ -71,10 +72,10 @@ int main() {
     // 2. 初始化内存系统 (课设要求容量限制为4页到32页)
     int phys_pages = 8; // 我们选用 8 页物理内存进行严格测试，更容易触发 LRU 置换
     if (init_memory_system(phys_pages) != 0) {
-        printf("内存系统初始化失败！请检查物理页参数配置。\n");
+        self_printf("内存系统初始化失败！请检查物理页参数配置。\n");
         return -1;
     }
-    printf("系统物理内存初始化成功，共分配 %d 页。\n\n", phys_pages);
+    self_printf("系统物理内存初始化成功，共分配 %d 页。\n\n", phys_pages);
 
     // 3. 临时构造一个进程的内存控制块 (MCB) 用于测试
     // 在最终系统中，这部分代码应该由负责“进程管理”的同学在创建进程时调用
@@ -108,6 +109,6 @@ int main() {
     free(current_mcb->segment_table);
     free(current_mcb);
 
-    printf("\n模拟测试结束。请将上述输出保存，用于课设文档的【实验模拟结果分析】。\n");
+    self_printf("\n模拟测试结束。请将上述输出保存，用于课设文档的【实验模拟结果分析】。\n");
     return 0;
 }

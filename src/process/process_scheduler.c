@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include "process.h"
-#include "queue.h"
-#include "config.h"
+#include "../../inc/process_process.h"
+#include "../../inc/process_queue.h"
+#include "../../inc/process_config.h"
+#include "../../inc/cmd.h"
 
 /* 每级队列时间片 */
 int time_slices[MLFQ_LEVELS] = { TIME_SLICE_Q0, TIME_SLICE_Q1, TIME_SLICE_Q2 };
@@ -36,12 +37,12 @@ void run_process()
         proc = scheduler();
         if (proc == NULL)
         {
-            //printf("No process to run\n");
+            //self_printf("No process to run\n");
             return;
         }
     }
 
-    printf("Running process %d (%s)\n", proc->pid, proc->name);
+    self_printf("Running process %d (%s)\n", proc->pid, proc->name);
 
     /* 模拟运行一个时间单位 */
     proc->remaining_time--;
@@ -50,7 +51,7 @@ void run_process()
     /* 进程结束 */
     if (proc->remaining_time <= 0)
     {
-        printf("Process %d finished\n", proc->pid);
+        self_printf("Process %d finished\n", proc->pid);
 
         proc->state = PROCESS_TERMINATED;
         process_destroy(proc);

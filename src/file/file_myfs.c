@@ -1,9 +1,10 @@
 // myfs.c - 完整版支持目录操作和路径切换
-#include "myfs.h"
+#include "../../inc/file_myfs.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "../../inc/cmd.h"
 
 // 读取扇区
 static int read_sector(MyFS* fs, unsigned int sector, void* buffer) {
@@ -62,7 +63,7 @@ void myfs_umount(MyFS* fs) {
 int myfs_format(MyFS* fs) {
     unsigned char sector[SECTOR_SIZE];
     
-    printf("正在格式化磁盘...\n");
+    self_printf("正在格式化磁盘...\n");
     
     // 1. 首先清空所有扇区（使用全0）
     memset(sector, 0, SECTOR_SIZE);
@@ -91,7 +92,7 @@ int myfs_format(MyFS* fs) {
     fs->current_cluster = 0;
     strcpy(fs->current_path, "/");
     
-    printf("格式化完成\n");
+    self_printf("格式化完成\n");
     return 0;
 }
 
@@ -419,7 +420,7 @@ int myfs_create_file(MyFS* fs, const char* path) {
     }
     
     if (dir_cluster < 0) {
-        printf("错误: 目录不存在: %s\n", dir_path);
+        self_printf("错误: 目录不存在: %s\n", dir_path);
         return -1;
     }
     
@@ -428,7 +429,7 @@ int myfs_create_file(MyFS* fs, const char* path) {
     int sector_num = find_free_entry_in_dir(fs, dir_cluster, &target_sector, &target_index);
     
     if (sector_num < 0) {
-        printf("错误: 目录已满\n");
+        self_printf("错误: 目录已满\n");
         return -1;
     }
     
@@ -474,7 +475,7 @@ int myfs_create_file(MyFS* fs, const char* path) {
     // 写回FAT表
     write_sector(fs, fs->fat_start, fs->fat);
     
-    printf("文件创建成功: %s (起始簇: %d)\n", path, cluster);
+    self_printf("文件创建成功: %s (起始簇: %d)\n", path, cluster);
     return 0;
 }
 
@@ -501,7 +502,7 @@ int myfs_create_dir(MyFS* fs, const char* path) {
     }
     
     if (parent_cluster < 0) {
-        printf("错误: 父目录不存在: %s\n", dir_path);
+        self_printf("错误: 父目录不存在: %s\n", dir_path);
         return -1;
     }
     
@@ -510,14 +511,14 @@ int myfs_create_dir(MyFS* fs, const char* path) {
     int sector_num = find_free_entry_in_dir(fs, parent_cluster, &target_sector, &target_index);
     
     if (sector_num < 0) {
-        printf("错误: 父目录已满\n");
+        self_printf("错误: 父目录已满\n");
         return -1;
     }
     
     // 分配一个簇用于存储目录内容
     int cluster = allocate_cluster(fs);
     if (cluster < 0) {
-        printf("错误: 无法分配簇\n");
+        self_printf("错误: 无法分配簇\n");
         return -1;
     }
     
@@ -587,7 +588,7 @@ int myfs_create_dir(MyFS* fs, const char* path) {
     // 写回FAT表
     write_sector(fs, fs->fat_start, fs->fat);
     
-    printf("目录创建成功: %s (起始簇: %d, 大小: %lu字节)\n", 
+    self_printf("目录创建成功: %s (起始簇: %d, 大小: %lu字节)\n", 
            path, cluster, entries[target_index].file_size);
     return 0;
 }
@@ -614,7 +615,7 @@ int myfs_delete_file(MyFS* fs, const char* path) {
     }
     
     if (dir_cluster < 0) {
-        printf("错误: 目录不存在: %s\n", dir_path);
+        self_printf("错误: 目录不存在: %s\n", dir_path);
         return -1;
     }
     
@@ -659,7 +660,7 @@ int myfs_delete_file(MyFS* fs, const char* path) {
                     // 写回FAT表
                     write_sector(fs, fs->fat_start, fs->fat);
                     
-                    printf("文件删除成功: %s\n", path);
+                    self_printf("文件删除成功: %s\n", path);
                     return 0;
                 }
             }
@@ -707,13 +708,13 @@ int myfs_delete_file(MyFS* fs, const char* path) {
                 // 写回FAT表
                 write_sector(fs, fs->fat_start, fs->fat);
                 
-                printf("文件删除成功: %s\n", path);
+                self_printf("文件删除成功: %s\n", path);
                 return 0;
             }
         }
     }
     
-    printf("文件不存在: %s\n", path);
+    self_printf("文件不存在: %s\n", path);
     return -1;
 }
 
@@ -740,7 +741,7 @@ int myfs_delete_dir(MyFS* fs, const char* path) {
     }
     
     if (parent_cluster < 0) {
-        printf("错误: 父目录不存在: %s\n", dir_path);
+        self_printf("错误: 父目录不存在: %s\n", dir_path);
         return -1;
     }
     
@@ -798,13 +799,13 @@ int myfs_delete_dir(MyFS* fs, const char* path) {
     }
     
     if (target_cluster < 0) {
-        printf("目录不存在: %s\n", path);
+        self_printf("目录不存在: %s\n", path);
         return -1;
     }
     
     // 检查目录是否为空
     if (!is_dir_empty(fs, target_cluster)) {
-        printf("错误: 目录不为空\n");
+        self_printf("错误: 目录不为空\n");
         return -1;
     }
     
@@ -828,7 +829,7 @@ int myfs_delete_dir(MyFS* fs, const char* path) {
     // 写回FAT表
     write_sector(fs, fs->fat_start, fs->fat);
     
-    printf("目录删除成功: %s\n", path);
+    self_printf("目录删除成功: %s\n", path);
     return 0;
 }
 
@@ -854,7 +855,7 @@ int myfs_write_file(MyFS* fs, const char* path, const char* data) {
     }
     
     if (dir_cluster < 0) {
-        printf("错误: 目录不存在: %s\n", dir_path);
+        self_printf("错误: 目录不存在: %s\n", dir_path);
         return -1;
     }
     
@@ -931,7 +932,7 @@ int myfs_write_file(MyFS* fs, const char* path, const char* data) {
     }
     
     if (!found) {
-        printf("文件不存在: %s\n", path);
+        self_printf("文件不存在: %s\n", path);
         return -1;
     }
     
@@ -946,7 +947,7 @@ int myfs_write_file(MyFS* fs, const char* path, const char* data) {
     // 重新分配第一个簇
     cluster = allocate_cluster(fs);
     if (cluster < 0) {
-        printf("错误: 无法分配簇\n");
+        self_printf("错误: 无法分配簇\n");
         return -1;
     }
     target_entry.first_cluster = cluster;
@@ -999,7 +1000,7 @@ int myfs_write_file(MyFS* fs, const char* path, const char* data) {
     // 写回FAT表
     write_sector(fs, fs->fat_start, fs->fat);
     
-    printf("写入 %d 字节到文件: %s\n", data_len, path);
+    self_printf("写入 %d 字节到文件: %s\n", data_len, path);
     return 0;
 }
 
@@ -1045,7 +1046,7 @@ int myfs_change_dir(MyFS* fs, const char* path) {
     // 查找目标目录
     int cluster = find_dir_cluster(fs, path);
     if (cluster < 0) {
-        printf("目录不存在: %s\n", path);
+        self_printf("目录不存在: %s\n", path);
         return -1;
     }
     
@@ -1063,7 +1064,7 @@ int myfs_change_dir(MyFS* fs, const char* path) {
 
 // 显示当前目录
 int myfs_pwd(MyFS* fs) {
-    printf("%s\n", fs->current_path);
+    self_printf("%s\n", fs->current_path);
     return 0;
 }
 
@@ -1124,13 +1125,13 @@ int myfs_list_dir(MyFS* fs, const char* path) {
     } else {
         list_cluster = find_dir_cluster(fs, path);
         if (list_cluster < 0) {
-            printf("目录不存在: %s\n", path);
+            self_printf("目录不存在: %s\n", path);
             return -1;
         }
     }
     
-    printf("\n%-15s %-10s %-8s %-8s %s\n", "文件名", "大小", "类型", "簇", "总大小(含子目录)");
-    printf("---------------------------------------------------------------------\n");
+    self_printf("\n%-15s %-10s %-8s %-8s %s\n", "文件名", "大小", "类型", "簇", "总大小(含子目录)");
+    self_printf("---------------------------------------------------------------------\n");
     
     if (list_cluster == 0) {
         // 列出根目录
@@ -1183,7 +1184,7 @@ int myfs_list_dir(MyFS* fs, const char* path) {
                         dir_total = calculate_dir_total_size(fs, entries[j].first_cluster);
                     }
                     
-                    printf("%-15s %-10lu %-8s %-8d %lu\n", 
+                    self_printf("%-15s %-10lu %-8s %-8d %lu\n", 
                            filename, 
                            entries[j].file_size,
                            type,
@@ -1248,7 +1249,7 @@ int myfs_list_dir(MyFS* fs, const char* path) {
                     dir_total = calculate_dir_total_size(fs, entries[j].first_cluster);
                 }
                 
-                printf("%-15s %-10lu %-8s %-8d %lu\n", 
+                self_printf("%-15s %-10lu %-8s %-8d %lu\n", 
                        filename, 
                        entries[j].file_size,
                        type,
@@ -1263,9 +1264,9 @@ int myfs_list_dir(MyFS* fs, const char* path) {
     }
     
     if (!found) {
-        printf("(空目录)\n");
+        self_printf("(空目录)\n");
     } else {
-        printf("\n总计: %d 个文件/目录, 本层总大小: %lu 字节\n", entry_count, total_size);
+        self_printf("\n总计: %d 个文件/目录, 本层总大小: %lu 字节\n", entry_count, total_size);
     }
     
     return 0;
@@ -1324,14 +1325,14 @@ int myfs_tree(MyFS* fs, const char* path, int level) {
                     filename[k] = '\0';
                     
                     for (int s = 0; s < level; s++) {
-                        printf("  ");
+                        self_printf("  ");
                     }
                     
                     if (entries[j].attr & ATTR_DIRECTORY) {
-                        printf("+-- [%s] (目录)\n", filename);
+                        self_printf("+-- [%s] (目录)\n", filename);
                         myfs_tree(fs, filename, level + 1);
                     } else {
-                        printf("+-- %s (%lu 字节)\n", filename, entries[j].file_size);
+                        self_printf("+-- %s (%lu 字节)\n", filename, entries[j].file_size);
                     }
                 }
             }
@@ -1377,14 +1378,14 @@ int myfs_tree(MyFS* fs, const char* path, int level) {
                 filename[k] = '\0';
                 
                 for (int s = 0; s < level; s++) {
-                    printf("  ");
+                    self_printf("  ");
                 }
                 
                 if (entries[j].attr & ATTR_DIRECTORY) {
-                    printf("+-- [%s] (目录)\n", filename);
+                    self_printf("+-- [%s] (目录)\n", filename);
                     myfs_tree(fs, filename, level + 1);
                 } else {
-                    printf("+-- %s (%lu 字节)\n", filename, entries[j].file_size);
+                    self_printf("+-- %s (%lu 字节)\n", filename, entries[j].file_size);
                 }
             }
         }
@@ -1402,20 +1403,20 @@ int myfs_info(MyFS* fs) {
         if (fs->fat[i] == 0) free_clusters++;
     }
     
-    printf("\n文件系统信息:\n");
-    printf("  总扇区数: %u\n", fs->total_sectors);
-    printf("  总簇数: %d\n", total_clusters);
-    printf("  空闲簇数: %d\n", free_clusters);
-    printf("  已用簇数: %d\n", total_clusters - free_clusters);
-    printf("  总空间: %lu MB\n", (fs->total_sectors * SECTOR_SIZE) / (1024 * 1024));
-    printf("  可用空间: %lu MB\n", (free_clusters * SECTOR_SIZE) / (1024 * 1024));
-    printf("  当前目录: %s\n", fs->current_path);
+    self_printf("\n文件系统信息:\n");
+    self_printf("  总扇区数: %u\n", fs->total_sectors);
+    self_printf("  总簇数: %d\n", total_clusters);
+    self_printf("  空闲簇数: %d\n", free_clusters);
+    self_printf("  已用簇数: %d\n", total_clusters - free_clusters);
+    self_printf("  总空间: %lu MB\n", (fs->total_sectors * SECTOR_SIZE) / (1024 * 1024));
+    self_printf("  可用空间: %lu MB\n", (free_clusters * SECTOR_SIZE) / (1024 * 1024));
+    self_printf("  当前目录: %s\n", fs->current_path);
     
     return 0;
 }
 
 // 读取文件（简单实现）
 int myfs_read_file(MyFS* fs, const char* path) {
-    printf("读取文件功能暂未实现\n");
+    self_printf("读取文件功能暂未实现\n");
     return -1;
 }

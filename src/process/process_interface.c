@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "os_interface.h"
-#include "process.h"
+#include "../../inc/process_interface.h"
+#include "../../inc/process_process.h"
+#include "../../inc/cmd.h"
 
 /* ============================= */
 /* ģ��ϵͳʱ��                  */
@@ -54,7 +55,7 @@ void os_free(void* ptr)
 
 void os_print(const char* msg)
 {
-    printf("%s", msg);
+    self_printf("%s", msg);
 }
 
 /* ============================= */
@@ -63,12 +64,12 @@ void os_print(const char* msg)
 
 void os_device_request(int device_id, int pid)
 {
-    printf("[DEVICE] process %d request device %d\n", pid, device_id);
+    self_printf("[DEVICE] process %d request device %d\n", pid, device_id);
 }
 
 void os_device_release(int device_id)
 {
-    printf("[DEVICE] device %d released\n", device_id);
+    self_printf("[DEVICE] device %d released\n", device_id);
 }
 
 /* ============================= */
@@ -112,9 +113,9 @@ void os_yield()
 
 void os_panic(const char* msg)
 {
-    printf("\n===== KERNEL PANIC =====\n");
-    printf("%s\n", msg);
-    printf("========================\n");
+    self_printf("\n===== KERNEL PANIC =====\n");
+    self_printf("%s\n", msg);
+    self_printf("========================\n");
 
     exit(1);
 }

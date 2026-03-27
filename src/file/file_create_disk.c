@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../../inc/cmd.h"
 
 #define DISK_SIZE 100 * 1024 * 1024  // 100MB
 #define SECTOR_SIZE 512
@@ -9,11 +10,11 @@
 int main() {
     FILE* disk = fopen("mydisk.img", "wb");
     if (!disk) {
-        printf("创建磁盘文件失败\n");
+        self_printf("创建磁盘文件失败\n");
         return 1;
     }
     
-    printf("正在创建虚拟磁盘文件 mydisk.img (100MB)...\n");
+    self_printf("正在创建虚拟磁盘文件 mydisk.img (100MB)...\n");
     
     // 分配100MB空间，初始化为0
     char* buffer = (char*)calloc(1, SECTOR_SIZE);
@@ -23,6 +24,6 @@ int main() {
     
     free(buffer);
     fclose(disk);
-    printf("虚拟磁盘创建成功!\n");
+    self_printf("虚拟磁盘创建成功!\n");
     return 0;
 }

@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "process.h"
-#include "os_interface.h"
-#include "queue.h"
+#include "../../inc/process_process.h"
+#include "../../inc/process_interface.h"
+#include "../../inc/process_queue.h"
+#include "../../inc/cmd.h"
 
 /* ========= 全局进程管理器 ========= */
 ProcessManager pm;
@@ -97,7 +98,7 @@ void print_process(PCB* proc)
 {
     if (proc == NULL) return;
 
-    printf("PID:%d  NAME:%s  STATE:%d  Q:%d  REMAIN:%d\n",
+    self_printf("PID:%d  NAME:%s  STATE:%d  Q:%d  REMAIN:%d\n",
         proc->pid,
         proc->name,
         proc->state,
@@ -110,17 +111,17 @@ void print_process(PCB* proc)
 /* ============================= */
 void print_system_state()
 {
-    printf("\n===== SYSTEM STATE =====\n");
+    self_printf("\n===== SYSTEM STATE =====\n");
 
-    printf("Running:\n");
+    self_printf("Running:\n");
     if (pm.running)
         print_process(pm.running);
     else
-        printf("None\n");
+        self_printf("None\n");
 
     for (int i = 0; i < MLFQ_LEVELS; i++)
     {
-        printf("\nReady Queue Q%d:\n", i);
+        self_printf("\nReady Queue Q%d:\n", i);
         PCB* p = pm.ready[i].front;
         while (p)
         {
@@ -129,7 +130,7 @@ void print_system_state()
         }
     }
 
-    printf("\nBlocked Queue:\n");
+    self_printf("\nBlocked Queue:\n");
     PCB* p = pm.blocked.front;
     while (p)
     {
@@ -137,5 +138,5 @@ void print_system_state()
         p = p->next;
     }
 
-    printf("========================\n");
+    self_printf("========================\n");
 }
