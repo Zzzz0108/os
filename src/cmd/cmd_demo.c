@@ -1,4 +1,4 @@
-﻿﻿#include "../../inc/cmd.h"
+﻿﻿﻿#include "../../inc/cmd.h"
 int main(void) {
     char cmd[MAX_CMD];
     welcome();

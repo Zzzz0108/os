@@ -1,10 +1,9 @@
-﻿#ifndef PROCESS_H
+﻿﻿#ifndef PROCESS_H
 #define PROCESS_H
 #include <stdio.h>
 #include "process_config.h"
 #include "process_queue.h"
 #include "mem.h"
-
 /* ========= ����״̬ ========= */
 typedef enum {
     PROCESS_NEW = 0,
@@ -26,10 +25,8 @@ typedef struct PCB {
     /* CPU状态（模拟） */
     int pc;
     int registers[8];
-
     /* �ڴ���Ϣ */
     MemControlBlock* mcb;
-    
     /* �ļ���Ϣ */
     int open_files[MAX_OPEN_FILES];
     /* 链表 */

@@ -1,4 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿﻿#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +7,6 @@
 #include "../../inc/process_queue.h"
 #include "../../inc/cmd.h"
 #include "../../inc/mem.h"
-
 /* ========= ȫ�ֽ��̹����� ========= */
 ProcessManager pm;
 /* ============================= */
@@ -49,12 +48,10 @@ void process_destroy(PCB* proc)
     if (proc == NULL)
         return;
     proc->state = PROCESS_TERMINATED;
-
     // 【修改】：在此处回收进程占用的物理内存
     if (proc->mcb) {
         destroy_process_memory(proc->mcb);
     }
-    
     os_free(proc);
 }
 /* ============================= */

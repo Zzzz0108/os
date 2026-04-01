@@ -1,4 +1,4 @@
-﻿// main.c - 主程序
+﻿﻿// main.c - 主程序
 #include "../../inc/file_myfs.h"
 #include <stdio.h>
 #include <string.h>

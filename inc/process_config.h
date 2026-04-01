@@ -1,4 +1,4 @@
-﻿#ifndef CONFIG_H
+﻿﻿#ifndef CONFIG_H
 #define CONFIG_H
 /* 系统参数 */
 #define MAX_PROCESS        64

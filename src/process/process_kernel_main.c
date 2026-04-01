@@ -1,7 +1,6 @@
-﻿#include "../../inc/process_interface.h"
+﻿﻿#include "../../inc/process_interface.h"
 #include "../../inc/process_process.h"
 #include "../../inc/mem.h"
-
 /* ���Խ���1 */
 /* 测试进程1 */
 void process_A()
@@ -27,7 +26,6 @@ int main()
     if (init_memory_system(16) != 0) {
         os_panic("Memory system initialization failed!");
     }
-    
     /* �����������Խ��� */
     os_create_process(process_A);
     os_create_process(process_B);

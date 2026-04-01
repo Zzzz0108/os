@@ -1,4 +1,4 @@
-﻿// create_disk.c - 创建虚拟磁盘
+﻿﻿// create_disk.c - 创建虚拟磁盘
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

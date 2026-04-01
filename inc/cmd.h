@@ -1,4 +1,4 @@
-﻿﻿// Public interfaces and constants for OS_cmd
+﻿﻿﻿// Public interfaces and constants for OS_cmd
 #pragma once
 // Basic headers (simulated OS + C standard library)
 #include <stdio.h>

@@ -1,4 +1,4 @@
-﻿#ifndef MEM_CONFIG_H
+﻿﻿#ifndef MEM_CONFIG_H
 #define MEM_CONFIG_H
 /* 系统级内存参数配置 */
 /* 课设要求：页面大小为1K [cite: 73] */
