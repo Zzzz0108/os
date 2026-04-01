@@ -1,36 +1,19 @@
-#ifndef OS_INTERFACE_H
+ï»¿#ifndef OS_INTERFACE_H
 #define OS_INTERFACE_H
-
 #include <stddef.h>
-
-/* ========= ÄÚ´æ½Ó¿Ú ========= */
-
+/* ========= å†…å­˜æ¥å£ ========= */
 void* os_malloc(size_t size);
-
 void  os_free(void* ptr);
-
-/* ========= Êä³ö½Ó¿Ú ========= */
-
+/* ========= è¾“å‡ºæ¥å£ ========= */
 void os_print(const char* msg);
-
-/* ========= ¶¨Ê±Æ÷½Ó¿Ú ========= */
-
+/* ========= å®šæ—¶å™¨æ¥å£ ========= */
 int os_get_tick();
-
-/* ========= Éè±¸½Ó¿Ú ========= */
-
+/* ========= è®¾å¤‡æ¥å£ ========= */
 void os_device_request(int device_id, int pid);
-
 void os_device_release(int device_id);
-
-/* ========= ½ø³Ì½Ó¿Ú ========= */
-
+/* ========= è¿›ç¨‹æ¥å£ ========= */
 void os_create_process(void (*entry)());
-
 void os_yield();
-
-/* ========= µ÷ÊÔ½Ó¿Ú ========= */
-
+/* ========= è°ƒè¯•æ¥å£ ========= */
 void os_panic(const char* msg);
-
 #endif

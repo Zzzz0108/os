@@ -1,46 +1,32 @@
-#include "../../inc/cmd.h"
-
-
+﻿#include "../../inc/cmd.h"
 //========================
 // self_* system call wrapper layer
 //========================
-
 int self_printf(const char *format, ...) {
     int ret;
     va_list args;
-
     va_start(args, format);
     ret = vprintf(format, args);   // currently use standard vprintf
     va_end(args);
-
     return ret;
 }
-
 int self_scanf(const char *format, ...) {
     int ret;
     va_list args;
-
     va_start(args, format);
     ret = vscanf(format, args);    // currently use standard vscanf
     va_end(args);
-
     return ret;
 }
-
 char *self_fgets(char *buffer, int size) {
     return fgets(buffer, size, stdin); // currently use standard fgets
 }
-
 int self_system(const char *command) {
     return system(command);            // currently use standard system
 }
-
-
-
 //========================
 // Simple string utilities used only in this file
 //========================
-
 // Remove CR/LF characters in-place
 void remove_newline(char *s) {
     int i = 0;
@@ -53,19 +39,15 @@ void remove_newline(char *s) {
         ++i;
     }
 }
-
 // Extract first word from src into dst
 void get_first_word(const char *src, char *dst, int dstSize) {
     int i = 0;
     int j = 0;
-
     if (!src || !dst || dstSize <= 0) return;
-
     // skip leading whitespace
     while (src[i] == ' ' || src[i] == '\t') {
         ++i;
     }
-
     // copy first word
     while (src[i] != '\0' && src[i] != ' ' && src[i] != '\t') {
         if (j < dstSize - 1) {
@@ -75,48 +57,39 @@ void get_first_word(const char *src, char *dst, int dstSize) {
     }
     dst[j] = '\0';
 }
-
 // Compare two null-terminated strings for equality
 int strings_equal(const char *a, const char *b) {
     int i = 0;
     if (!a || !b) return 0;
-
     while (a[i] != '\0' && b[i] != '\0') {
         if (a[i] != b[i]) {
             return 0;
         }
         ++i;
     }
-
     return (a[i] == '\0' && b[i] == '\0');
 }
-
 // Skip "echo" keyword and following spaces, return message part
 char *get_echo_message(char *cmd) {
     char *p = cmd;
     if (!p) return NULL;
-
     // skip leading whitespace
     while (*p == ' ' || *p == '\t') {
         ++p;
     }
-
     // skip first word (e.g. "echo")
     while (*p != '\0' && *p != ' ' && *p != '\t') {
         ++p;
     }
-
     // then skip whitespace, the rest is the argument
     while (*p == ' ' || *p == '\t') {
         ++p;
     }
-
     return p;
 }
 //========================
 // "Kernel" / terminal logic
 //========================
-
 void help(void) {
     self_printf("Available commands:\n");
     self_printf("  help       Show help\n");
@@ -126,15 +99,12 @@ void help(void) {
     self_printf("  sysinfo    System information\n");
     self_printf("  exit       Exit terminal\n");
 }
-
 void clear(void) {
     self_system("cls");
 }
-
 void echo(const char *msg) {
     self_printf("%s\n", msg);
 }
-
 void dir(void) {
     self_printf("  Directory: C:\\MiniOS\\\n");
     self_printf("  kernel.sys\n");
@@ -142,7 +112,6 @@ void dir(void) {
     self_printf("  user.cfg\n");
     self_printf("  boot.ini\n");
 }
-
 void sysinfo(void) {
     self_printf("=== System Information ===\n");
     self_printf("OS    : MiniOS 1.0\n");
@@ -150,7 +119,6 @@ void sysinfo(void) {
     self_printf("Shell : Terminal\n");
     self_printf("Compiler: MSVC (C)\n");
 }
-
 void welcome(void) {
     clear();
     self_printf("========================================\n");

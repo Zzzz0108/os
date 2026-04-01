@@ -1,21 +1,16 @@
-﻿#include "../../inc/cmd.h"
-
+﻿﻿#include "../../inc/cmd.h"
 int main(void) {
     char cmd[MAX_CMD];
     welcome();
-
     while (1) {
         self_printf("\n[MiniOS] > ");
         if (!self_fgets(cmd, MAX_CMD))
             break;
-
         // remove trailing newline
         remove_newline(cmd);
-
         // extract first word
         char op[MAX_CMD] = {0};
         get_first_word(cmd, op, MAX_CMD);
-
         if (strings_equal(op, "help")) {
             help();
         } else if (strings_equal(op, "clear")) {

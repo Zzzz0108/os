@@ -1,17 +1,15 @@
-#include "../../inc/process_interface.h"
+ï»¿#include "../../inc/process_interface.h"
 #include "../../inc/process_process.h"
-
-/* ²âÊÔ½ø³Ì1 */
+/* æµ‹è¯•è¿›ç¨‹1 */
 void process_A()
 {
     while (1)
     {
-        // Ä£ÄâÈÎÎñ
+        // æ¨¡æ‹Ÿä»»åŠ¡
         for (int i = 0; i < 1000000; i++);
     }
 }
-
-/* ²âÊÔ½ø³Ì2 */
+/* æµ‹è¯•è¿›ç¨‹2 */
 void process_B()
 {
     while (1)
@@ -19,19 +17,16 @@ void process_B()
         for (int i = 0; i < 1000000; i++);
     }
 }
-
-/* ÄÚºËÈë¿Ú */
+/* å†…æ ¸å…¥å£ */
 int main()
 {
-    /* ´´½¨Á½¸ö²âÊÔ½ø³Ì */
+    /* åˆ›å»ºä¸¤ä¸ªæµ‹è¯•è¿›ç¨‹ */
     os_create_process(process_A);
     os_create_process(process_B);
-
-    /* ÄÚºËÑ­»· */
+    /* å†…æ ¸å¾ªçŽ¯ */
     while (1)
     {
-        os_yield();   // Ö÷¶¯ÈÃ³öCPU
+        os_yield();   // ä¸»åŠ¨è®©å‡ºCPU
     }
-
     return 0;
 }

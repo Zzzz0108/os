@@ -1,11 +1,9 @@
-#ifndef PROCESS_H
+ï»¿#ifndef PROCESS_H
 #define PROCESS_H
-
 #include <stdio.h>
 #include "process_config.h"
 #include "process_queue.h"
-
-/* ========= ½ø³Ì×´Ì¬ ========= */
+/* ========= è¿›ç¨‹çŠ¶æ€ ========= */
 typedef enum {
     PROCESS_NEW = 0,
     PROCESS_READY,
@@ -13,62 +11,48 @@ typedef enum {
     PROCESS_BLOCKED,
     PROCESS_TERMINATED
 } ProcessState;
-
 /* ========= PCB ========= */
 typedef struct PCB {
     int pid;
     char name[MAX_NAME_LEN];
     ProcessState state;
-
-    /* µ÷¶È */
+    /* è°ƒåº¦ */
     int queue_level;
     int total_time;
     int remaining_time;
     int time_slice_used;
-
-    /* CPU×´Ì¬£¨Ä£Äâ£© */
+    /* CPUçŠ¶æ€ï¼ˆæ¨¡æ‹Ÿï¼‰ */
     int pc;
     int registers[8];
-
-    /* ÄÚ´æĞÅÏ¢ */
+    /* å†…å­˜ä¿¡æ¯ */
     void* mem_base;
     int mem_size;
-
-    /* ÎÄ¼şĞÅÏ¢ */
+    /* æ–‡ä»¶ä¿¡æ¯ */
     int open_files[MAX_OPEN_FILES];
-
-    /* Á´±í */
+    /* é“¾è¡¨ */
     struct PCB* next;
 } PCB;
-
-/* ========= ½ø³Ì¹ÜÀíÆ÷ ========= */
+/* ========= è¿›ç¨‹ç®¡ç†å™¨ ========= */
 typedef struct {
     Queue ready[MLFQ_LEVELS];
     Queue blocked;
     PCB* running;
     int pid_counter;
 } ProcessManager;
-
-/* ========= ³õÊ¼»¯ ========= */
+/* ========= åˆå§‹åŒ– ========= */
 void process_manager_init();
-
-/* ========= ½ø³Ì²Ù×÷ ========= */
+/* ========= è¿›ç¨‹æ“ä½œ ========= */
 PCB* process_create(const char* name, int runtime);
 void process_destroy(PCB* proc);
-
-/* ========= ×´Ì¬±ä»¯ ========= */
+/* ========= çŠ¶æ€å˜åŒ– ========= */
 void process_block(PCB* proc);
 void process_wakeup(PCB* proc);
-
-/* ========= µ÷¶È ========= */
+/* ========= è°ƒåº¦ ========= */
 PCB* scheduler();
 void run_process();
-
-/* ========= µ÷ÊÔ ========= */
+/* ========= è°ƒè¯• ========= */
 void print_process(PCB* proc);
 void print_system_state();
-
-/* ========= È«¾Ö½ø³Ì¹ÜÀíÆ÷ ========= */
+/* ========= å…¨å±€è¿›ç¨‹ç®¡ç†å™¨ ========= */
 extern ProcessManager pm;
-
 #endif

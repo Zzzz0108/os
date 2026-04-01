@@ -1,29 +1,21 @@
-#include "../../inc/process_queue.h"
+ï»¿#include "../../inc/process_queue.h"
 #include "../../inc/process_process.h"
-
-/* ³õÊ¼»¯¶ÓÁÐ */
-
+/* åˆå§‹åŒ–é˜Ÿåˆ— */
 void queue_init(Queue* q)
 {
     q->front = NULL;
     q->rear = NULL;
     q->size = 0;
 }
-
-/* ÅÐ¶Ï¶ÓÁÐÊÇ·ñÎª¿Õ */
-
+/* åˆ¤æ–­é˜Ÿåˆ—æ˜¯å¦ä¸ºç©º */
 int queue_is_empty(Queue* q)
 {
     return (q->size == 0);
 }
-
-/* Èë¶Ó */
-
+/* å…¥é˜Ÿ */
 void enqueue(Queue* q, PCB* proc)
 {
     proc->next = NULL;
-
-    
         if (q->rear == NULL)
         {
             q->front = proc;
@@ -34,78 +26,50 @@ void enqueue(Queue* q, PCB* proc)
             q->rear->next = proc;
             q->rear = proc;
         }
-
     q->size++;
-    
-
 }
-
-/* ³ö¶Ó */
-
+/* å‡ºé˜Ÿ */
 PCB* dequeue(Queue* q)
 {
     if (queue_is_empty(q))
         return NULL;
-
-    
         PCB* proc = q->front;
-
     q->front = proc->next;
-
     if (q->front == NULL)
         q->rear = NULL;
-
     proc->next = NULL;
-
     q->size--;
-
     return proc;
-    
-
 }
-
-/* ´Ó¶ÓÁÐÖÐÒÆ³ýÖ¸¶¨½ø³Ì */
-
+/* ä»Žé˜Ÿåˆ—ä¸­ç§»é™¤æŒ‡å®šè¿›ç¨‹ */
 void queue_remove(Queue* q, PCB* proc)
 {
     if (queue_is_empty(q) || proc == NULL)
         return;
-
-    
         PCB* prev = NULL;
     PCB* curr = q->front;
-
     while (curr != NULL)
     {
         if (curr == proc)
         {
             if (prev == NULL)
             {
-                /* É¾³ýÍ·½Úµã */
-
+                /* åˆ é™¤å¤´èŠ‚ç‚¹ */
                 q->front = curr->next;
-
                 if (q->rear == curr)
                     q->rear = NULL;
             }
             else
             {
                 prev->next = curr->next;
-
                 if (q->rear == curr)
                     q->rear = prev;
             }
-
             curr->next = NULL;
-
             q->size--;
-
             return;
         }
-
         prev = curr;
         curr = curr->next;
     }
-    
-
 }

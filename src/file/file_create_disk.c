@@ -1,29 +1,24 @@
-// create_disk.c - ´´½¨ĞéÄâ´ÅÅÌ
+ï»¿// create_disk.c - åˆ›å»ºè™šæ‹Ÿç£ç›˜
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../../inc/cmd.h"
-
 #define DISK_SIZE 100 * 1024 * 1024  // 100MB
 #define SECTOR_SIZE 512
-
 int main() {
     FILE* disk = fopen("mydisk.img", "wb");
     if (!disk) {
-        self_printf("´´½¨´ÅÅÌÎÄ¼şÊ§°Ü\n");
+        self_printf("åˆ›å»ºç£ç›˜æ–‡ä»¶å¤±è´¥\n");
         return 1;
     }
-    
-    self_printf("ÕıÔÚ´´½¨ĞéÄâ´ÅÅÌÎÄ¼ş mydisk.img (100MB)...\n");
-    
-    // ·ÖÅä100MB¿Õ¼ä£¬³õÊ¼»¯Îª0
+    self_printf("æ­£åœ¨åˆ›å»ºè™šæ‹Ÿç£ç›˜æ–‡ä»¶ mydisk.img (100MB)...\n");
+    // åˆ†é…100MBç©ºé—´ï¼Œåˆå§‹åŒ–ä¸º0
     char* buffer = (char*)calloc(1, SECTOR_SIZE);
     for (long long i = 0; i < DISK_SIZE / SECTOR_SIZE; i++) {
         fwrite(buffer, 1, SECTOR_SIZE, disk);
     }
-    
     free(buffer);
     fclose(disk);
-    self_printf("ĞéÄâ´ÅÅÌ´´½¨³É¹¦!\n");
+    self_printf("è™šæ‹Ÿç£ç›˜åˆ›å»ºæˆåŠŸ!\n");
     return 0;
 }
