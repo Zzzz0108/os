@@ -1,4 +1,7 @@
-﻿#include "../../inc/cmd.h"
+#include "../../inc/cmd.h"
+#include "../../inc/mem.h"
+
+
 //========================
 // self_* system call wrapper layer
 //========================
@@ -97,6 +100,7 @@ void help(void) {
     self_printf("  echo ...   Print text\n");
     self_printf("  dir        Show directory\n");
     self_printf("  sysinfo    System information\n");
+    self_printf("  meminfo    Memory system status\n");
     self_printf("  exit       Exit terminal\n");
 }
 void clear(void) {
@@ -119,6 +123,11 @@ void sysinfo(void) {
     self_printf("Shell : Terminal\n");
     self_printf("Compiler: MSVC (C)\n");
 }
+
+void meminfo(void) {
+    print_mem_status(); // 调用你写好的函数打印命中率和占用
+}
+
 void welcome(void) {
     clear();
     self_printf("========================================\n");

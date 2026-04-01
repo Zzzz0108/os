@@ -6,10 +6,12 @@
 #include "../../inc/process_interface.h"
 #include "../../inc/process_queue.h"
 #include "../../inc/cmd.h"
-/* ========= 全局进程管理器 ========= */
+#include "../../inc/mem.h"
+
+/* ========= ȫ�ֽ��̹����� ========= */
 ProcessManager pm;
 /* ============================= */
-/* 初始化进程管理器              */
+/* ��ʼ�����̹�����              */
 /* ============================= */
 void process_manager_init()
 {
@@ -20,7 +22,7 @@ void process_manager_init()
     pm.pid_counter = 1;
 }
 /* ============================= */
-/* 创建进程                      */
+/* ��������                      */
 /* ============================= */
 PCB* process_create(const char* name, int runtime)
 {
@@ -34,24 +36,29 @@ PCB* process_create(const char* name, int runtime)
     proc->remaining_time = runtime;
     proc->time_slice_used = 0;
     proc->pc = 0;
-    proc->mem_base = NULL;
-    proc->mem_size = 0;
+    proc->mcb = create_process_memory(proc->pid);
     proc->next = NULL;
     enqueue(&pm.ready[0], proc);
     return proc;
 }
 /* ============================= */
-/* 销毁进程                      */
+/* ���ٽ���                      */
 /* ============================= */
 void process_destroy(PCB* proc)
 {
     if (proc == NULL)
         return;
     proc->state = PROCESS_TERMINATED;
+
+    // 【修改】：在此处回收进程占用的物理内存
+    if (proc->mcb) {
+        destroy_process_memory(proc->mcb);
+    }
+    
     os_free(proc);
 }
 /* ============================= */
-/* 阻塞进程                      */
+/* ��������                      */
 /* ============================= */
 void process_block(PCB* proc)
 {
@@ -61,7 +68,7 @@ void process_block(PCB* proc)
     enqueue(&pm.blocked, proc);
 }
 /* ============================= */
-/* 唤醒进程                      */
+/* ���ѽ���                      */
 /* ============================= */
 void process_wakeup(PCB* proc)
 {
@@ -73,7 +80,7 @@ void process_wakeup(PCB* proc)
     enqueue(&pm.ready[0], proc);
 }
 /* ============================= */
-/* 打印单个进程信息              */
+/* ��ӡ����������Ϣ              */
 /* ============================= */
 void print_process(PCB* proc)
 {
@@ -86,7 +93,7 @@ void print_process(PCB* proc)
         proc->remaining_time);
 }
 /* ============================= */
-/* 打印系统状态                  */
+/* ��ӡϵͳ״̬                  */
 /* ============================= */
 void print_system_state()
 {

@@ -24,4 +24,5 @@ void clear(void);
 void echo(const char *msg);
 void dir(void);
 void sysinfo(void);
+void meminfo(void);
 void welcome(void);

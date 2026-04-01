@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include "process_config.h"
 #include "process_queue.h"
-/* ========= 进程状态 ========= */
+#include "mem.h"
+
+/* ========= ����״̬ ========= */
 typedef enum {
     PROCESS_NEW = 0,
     PROCESS_READY,
@@ -24,10 +26,11 @@ typedef struct PCB {
     /* CPU状态（模拟） */
     int pc;
     int registers[8];
-    /* 内存信息 */
-    void* mem_base;
-    int mem_size;
-    /* 文件信息 */
+
+    /* �ڴ���Ϣ */
+    MemControlBlock* mcb;
+    
+    /* �ļ���Ϣ */
     int open_files[MAX_OPEN_FILES];
     /* 链表 */
     struct PCB* next;

@@ -1,12 +1,15 @@
-﻿#include <stdio.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "../../inc/process_process.h"
 #include "../../inc/process_queue.h"
 #include "../../inc/process_config.h"
 #include "../../inc/cmd.h"
-/* 每级队列时间片 */
+#include "../../inc/mem.h"
+
+/* ÿ������ʱ��Ƭ */
 int time_slices[MLFQ_LEVELS] = { TIME_SLICE_Q0, TIME_SLICE_Q1, TIME_SLICE_Q2 };
 /* ===============================
-   调度器：选择下一个运行进程
+   ��������ѡ����һ�����н���
    =============================== */
 PCB* scheduler()
 {
@@ -23,7 +26,7 @@ PCB* scheduler()
     return NULL;
 }
 /* ===============================
-   运行当前进程
+   ���е�ǰ����
    =============================== */
 void run_process()
 {
@@ -38,10 +41,29 @@ void run_process()
         }
     }
     self_printf("Running process %d (%s)\n", proc->pid, proc->name);
-    /* 模拟运行一个时间单位 */
+
+    // 【新增】：在这里模拟当前进程正在随机读写内存，从而触发缺页中断
+    if (proc->mcb) {
+        uint32_t seg = rand() % proc->mcb->seg_count; 
+        uint32_t page = rand() % 12; // 故意随机 0~11 页，必定超出物理页限制
+        uint32_t offset = rand() % PAGE_SIZE;
+        uint32_t logical_addr = (seg << 24) | (page << 10) | offset;
+        
+        uint8_t data_to_write = (uint8_t)(rand() % 256);
+        uint8_t read_data = 0;
+
+        if (rand() % 2) {
+            write_memory(proc->mcb, logical_addr, data_to_write);
+        } else {
+            read_memory(proc->mcb, logical_addr, &read_data);
+        }
+    }
+    
+    /* ģ������һ��ʱ�䵥λ */
     proc->remaining_time--;
     proc->time_slice_used++;
-    /* 进程结束 */
+
+    /* ���̽��� */
     if (proc->remaining_time <= 0)
     {
         self_printf("Process %d finished\n", proc->pid);
@@ -51,11 +73,13 @@ void run_process()
         return;
     }
     int level = proc->queue_level;
-    /* 时间片用完 */
+
+    /* ʱ��Ƭ���� */
     if (proc->time_slice_used >= time_slices[level])
     {
         proc->time_slice_used = 0;
-        /* 降级（但不能超过最低级） */
+
+        /* �����������ܳ�����ͼ��� */
         if (level < MLFQ_LEVELS - 1)
             proc->queue_level++;
         proc->state = PROCESS_READY;
