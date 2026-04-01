@@ -1,4 +1,4 @@
-﻿﻿// myfs.c - 完整版支持目录操作和路径切换
+// myfs.c - 完整版支持目录操作和路径切换
 #include "../../inc/file_myfs.h"
 #include <stdio.h>
 #include <stdlib.h>

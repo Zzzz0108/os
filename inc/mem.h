@@ -1,4 +1,4 @@
-﻿﻿#ifndef MEMORY_H
+#ifndef MEMORY_H
 #define MEMORY_H
 #include "mem_config.h"
 #include "mem_types.h"

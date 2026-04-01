@@ -1,4 +1,4 @@
-﻿#include "../../inc/cmd.h"
+#include "../../inc/cmd.h"
 #include "../../inc/mem.h"
 //========================
 // self_* system call wrapper layer
@@ -130,4 +130,78 @@ void welcome(void) {
     self_printf("       Mini OS Terminal (C/VS)          \n");
     self_printf("          Type 'help' for commands      \n");
     self_printf("========================================\n");
+}
+
+#include "../../inc/file_myfs.h"
+#include "../../inc/process_process.h"
+
+static MyFS global_fs;
+static int fs_ready = 0;
+
+void os_terminal_init(void) {
+    if (myfs_mount(&global_fs, "src/file/mydisk.img") == 0) {
+        fs_ready = 1;
+    } else {
+        self_printf("Warning: Virtual disk 'src/file/mydisk.img' mount failed. File commands may not work.\n");
+    }
+}
+
+char *get_cmd_arg(char *cmd) {
+    char *p = cmd;
+    if (!p) return NULL;
+    while (*p == ' ' || *p == '\t') ++p;
+    while (*p != '\0' && *p != ' ' && *p != '\t') ++p;
+    while (*p == ' ' || *p == '\t') ++p;
+    return p;
+}
+
+void cmd_ls(const char *arg) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    if (arg && *arg) myfs_list_dir(&global_fs, arg);
+    else myfs_list_dir(&global_fs, NULL);
+}
+
+void cmd_cd(const char *arg) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    if (arg && *arg) myfs_change_dir(&global_fs, arg);
+    else myfs_change_dir(&global_fs, "/");
+}
+
+void cmd_mkdir(const char *arg) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    if (arg && *arg) myfs_create_dir(&global_fs, arg);
+    else self_printf("Usage: mkdir <dir>\n");
+}
+
+void cmd_rmdir(const char *arg) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    if (arg && *arg) myfs_delete_dir(&global_fs, arg);
+    else self_printf("Usage: rmdir <dir>\n");
+}
+
+void cmd_touch(const char *arg) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    if (arg && *arg) myfs_create_file(&global_fs, arg);
+    else self_printf("Usage: touch <file>\n");
+}
+
+void cmd_cat(const char *arg) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    if (arg && *arg) myfs_read_file(&global_fs, arg);
+    else self_printf("Usage: cat <file>\n");
+}
+
+void cmd_rm(const char *arg) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    if (arg && *arg) myfs_delete_file(&global_fs, arg);
+    else self_printf("Usage: rm <file>\n");
+}
+
+void cmd_pwd(void) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    myfs_pwd(&global_fs);
+}
+
+void cmd_ps(void) {
+    print_system_state();
 }

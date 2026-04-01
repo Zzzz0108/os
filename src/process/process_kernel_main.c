@@ -1,4 +1,4 @@
-﻿﻿#include "../../inc/process_interface.h"
+#include "../../inc/process_interface.h"
 #include "../../inc/process_process.h"
 #include "../../inc/mem.h"
 /* ���Խ���1 */

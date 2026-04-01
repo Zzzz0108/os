@@ -1,4 +1,4 @@
-﻿﻿#include "../../inc/mem.h"
+#include "../../inc/mem.h"
 #include "../../inc/mem_sync.h"
 #include <stdio.h>
 #include <stdlib.h>

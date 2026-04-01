@@ -1,6 +1,7 @@
-﻿﻿﻿#include "../../inc/cmd.h"
+#include "../../inc/cmd.h"
 int main(void) {
     char cmd[MAX_CMD];
+    os_terminal_init();
     welcome();
     while (1) {
         self_printf("\n[MiniOS] > ");
@@ -27,6 +28,26 @@ int main(void) {
         } else if (strings_equal(op, "exit")) {
             self_printf("Exiting terminal...\n");
             break;
+        } else if (strings_equal(op, "ls")) {
+            cmd_ls(get_cmd_arg(cmd));
+        } else if (strings_equal(op, "cd")) {
+            cmd_cd(get_cmd_arg(cmd));
+        } else if (strings_equal(op, "mkdir")) {
+            cmd_mkdir(get_cmd_arg(cmd));
+        } else if (strings_equal(op, "rmdir")) {
+            cmd_rmdir(get_cmd_arg(cmd));
+        } else if (strings_equal(op, "touch")) {
+            cmd_touch(get_cmd_arg(cmd));
+        } else if (strings_equal(op, "cat")) {
+            cmd_cat(get_cmd_arg(cmd));
+        } else if (strings_equal(op, "rm")) {
+            cmd_rm(get_cmd_arg(cmd));
+        } else if (strings_equal(op, "pwd")) {
+            cmd_pwd();
+        } else if (strings_equal(op, "ps")) {
+            cmd_ps();
+        } else if (strings_equal(op, "free")) {
+            meminfo();
         } else if (op[0] != '\0') {
             self_printf("Unsupported command: %s\n", op);
         }

@@ -1,4 +1,4 @@
-﻿﻿#ifndef OS_SYNC_H
+#ifndef OS_SYNC_H
 #define OS_SYNC_H
 /* * 平台无关的互斥锁句柄。
  * 使用 void* 可以隐藏底层具体实现（如 Windows 的 CRITICAL_SECTION 或 HANDLE）。

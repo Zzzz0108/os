@@ -1,4 +1,4 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "../../inc/process_process.h"
 #include "../../inc/process_queue.h"

@@ -1,4 +1,4 @@
-﻿﻿#ifndef PROCESS_H
+#ifndef PROCESS_H
 #define PROCESS_H
 #include <stdio.h>
 #include "process_config.h"
