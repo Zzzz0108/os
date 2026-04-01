@@ -8,19 +8,19 @@
 #include "../../inc/cmd.h"
 
 /* ============================= */
-/* ģ��ϵͳʱ��                  */
+/* 模拟系统时钟                  */
 /* ============================= */
 
 static int system_tick = 0;
 
-/* ��ȡϵͳtick */
+/* 获取系统tick */
 
 int os_get_tick()
 {
     return system_tick;
 }
 
-/* ����tick */
+/* 增加tick */
 
 void os_tick()
 {
@@ -28,7 +28,7 @@ void os_tick()
 }
 
 /* ============================= */
-/* �ڴ�ӿ�                      */
+/* 内存接口                      */
 /* ============================= */
 
 void* os_malloc(size_t size)
@@ -50,7 +50,7 @@ void os_free(void* ptr)
 }
 
 /* ============================= */
-/* ����ӿ�                      */
+/* 打印接口                      */
 /* ============================= */
 
 void os_print(const char* msg)
@@ -59,7 +59,7 @@ void os_print(const char* msg)
 }
 
 /* ============================= */
-/* �豸�ӿڣ�ģ�⣩              */
+/* 设备接口（模拟）              */
 /* ============================= */
 
 void os_device_request(int device_id, int pid)
@@ -73,10 +73,10 @@ void os_device_release(int device_id)
 }
 
 /* ============================= */
-/* ���̽ӿ�                      */
+/* 进程接口                      */
 /* ============================= */
 
-/* �������� */
+/* 创建进程 */
 
 void os_create_process(void (*entry)())
 {
@@ -86,7 +86,7 @@ void os_create_process(void (*entry)())
 
     sprintf(name, "process_%d", proc_id++);
 
-    /* ����PCB */
+    /* 创建PCB */
 
     PCB* proc = process_create(name, 10);
 
@@ -95,20 +95,20 @@ void os_create_process(void (*entry)())
         os_panic("process_create failed");
     }
 
-    /* ������ڵ�ַ��ģ�⣩ */
+    /* 设置入口地址（模拟） */
 
     proc->pc = (int)(long)entry;
 }
 
-/* �����ó�CPU */
+/* 主动让出CPU */
 
 void os_yield()
 {
-    run_process();   // ���õ���������һ��ʱ��Ƭ
+    run_process();   // 调用调度器运行下一个时间片
 }
 
 /* ============================= */
-/* ϵͳ����                      */
+/* 系统错误处理                  */
 /* ============================= */
 
 void os_panic(const char* msg)

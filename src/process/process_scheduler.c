@@ -6,11 +6,11 @@
 #include "../../inc/cmd.h"
 #include "../../inc/mem.h"
 
-/* ÿ������ʱ��Ƭ */
+/* 每个队列时间片 */
 int time_slices[MLFQ_LEVELS] = { TIME_SLICE_Q0, TIME_SLICE_Q1, TIME_SLICE_Q2 };
 
 /* ===============================
-   ��������ѡ����һ�����н���
+   调度器：选择下一个就绪进程
    =============================== */
 PCB* scheduler()
 {
@@ -28,7 +28,7 @@ PCB* scheduler()
 }
 
 /* ===============================
-   ���е�ǰ����
+   运行当前进程
    =============================== */
 void run_process()
 {
@@ -48,26 +48,27 @@ void run_process()
 
     // 【新增】：在这里模拟当前进程正在随机读写内存，从而触发缺页中断
     if (proc->mcb) {
-        uint32_t seg = rand() % proc->mcb->seg_count; 
+        uint32_t seg = rand() % proc->mcb->seg_count;
         uint32_t page = rand() % 12; // 故意随机 0~11 页，必定超出物理页限制
         uint32_t offset = rand() % PAGE_SIZE;
         uint32_t logical_addr = (seg << 24) | (page << 10) | offset;
-        
+
         uint8_t data_to_write = (uint8_t)(rand() % 256);
         uint8_t read_data = 0;
 
         if (rand() % 2) {
             write_memory(proc->mcb, logical_addr, data_to_write);
-        } else {
+        }
+        else {
             read_memory(proc->mcb, logical_addr, &read_data);
         }
     }
-    
-    /* ģ������һ��ʱ�䵥λ */
+
+    /* 模拟一个时间单位 */
     proc->remaining_time--;
     proc->time_slice_used++;
 
-    /* ���̽��� */
+    /* 进程结束 */
     if (proc->remaining_time <= 0)
     {
         self_printf("Process %d finished\n", proc->pid);
@@ -81,12 +82,12 @@ void run_process()
 
     int level = proc->queue_level;
 
-    /* ʱ��Ƭ���� */
+    /* 时间片用完 */
     if (proc->time_slice_used >= time_slices[level])
     {
         proc->time_slice_used = 0;
 
-        /* �����������ܳ�����ͼ��� */
+        /* 降级：进程降入下一级队列 */
         if (level < MLFQ_LEVELS - 1)
             proc->queue_level++;
 
