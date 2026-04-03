@@ -18,7 +18,7 @@
 gcc -finput-charset=UTF-8-fexec-charset=UTF-8-Iinc src/cmd/cmd_demo.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c -o cmd_demo.exe
 
 
-lc/utf-8 src/cmd/cmd_demo.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c /Fe:cmd_demo.exe
+cl /utf-8 src/cmd/cmd_demo.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c /Fe:cmd_demo.exe
 
 .\cmd_demo.exe
 
@@ -32,7 +32,7 @@ cmd：
 gcc -finput-charset=UTF-8 -fexec-charset=UTF-8 -Iinc src/Memory/mem_test.c src/Memory/mem.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c -o mem_test.exe
 
 
-lc /utf-8 src/Memory/mem_test.c src/Memory/mem.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c /Fe:mem_test.exe
+cl /utf-8 src/Memory/mem_test.c src/Memory/mem.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c /Fe:mem_test.exe
 
 .\mem_test.exe
 
