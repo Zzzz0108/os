@@ -55,10 +55,10 @@ void run_process()
         }
     }
     /* ģ������һ��ʱ�䵥λ */
-    proc->remaining_time--;
+    if (proc->total_time != -1) proc->remaining_time--;
     proc->time_slice_used++;
     /* ���̽��� */
-    if (proc->remaining_time <= 0)
+    if (proc->total_time != -1 && proc->remaining_time <= 0)
     {
         self_printf("Process %d finished\n", proc->pid);
         proc->state = PROCESS_TERMINATED;
