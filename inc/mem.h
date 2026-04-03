@@ -8,8 +8,17 @@
  * 根据课设要求，用户内存容量需要在 4 页到 32 页之间。
  * num_phys_pages: 指定物理内存的页数。
  * 返回值: 0 表示成功，-1 表示失败（如参数不合法）。
+ * （默认使用 LRU 置换算法）
  */
 int init_memory_system(int num_phys_pages);
+
+/*
+ * 带置换算法选择的内存系统初始化。
+ * num_phys_pages: 指定物理内存的页数。
+ * algorithm: 置换算法 (0=LRU, 1=FIFO, 2=CLOCK)。
+ * 返回值: 0 表示成功，-1 表示失败。
+ */
+int init_memory_system_with_algorithm(int num_phys_pages, int algorithm);
 /*
  * 为新进程创建内存控制块（分配段表等核心结构）。
  * pid: 进程ID。

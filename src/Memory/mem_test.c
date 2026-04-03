@@ -5,6 +5,12 @@
 #include "../../inc/mem.h"
 #include "../../inc/mem_sync.h"
 #include "../../inc/cmd.h"
+
+/* 置换算法枚举 */
+#define ALGORITHM_LRU 0
+#define ALGORITHM_FIFO 1
+#define ALGORITHM_CLOCK 2
+
 /* 全局共享资源 */
 os_mutex_t mem_lock;
 MemControlBlock* current_mcb;
@@ -53,17 +59,24 @@ DWORD WINAPI MonitorThread(LPVOID lpParam) {
 }
 int main() {
     self_printf("=== 操作系统课程设计：段页式内存管理模拟 ===\n");
+    self_printf("支持多种置换算法：LRU / FIFO / CLOCK\n\n");
     // 1. 初始化同步锁
     mem_lock = os_mutex_create();
     // 2. 初始化内存系统 (课设要求容量限制为4页到32页)
-    int phys_pages = 8; // 我们选用 8 页物理内存进行严格测试，更容易触发 LRU 置换
-    if (init_memory_system(phys_pages) != 0) {
+    int phys_pages = 8; // 8 页物理内存，更容易触发置换
+    // 算法配置：可以修改这个值来测试不同的置换算法
+    int selected_algorithm = ALGORITHM_LRU;
+    
+    const char* algorithm_names[] = {"LRU", "FIFO", "CLOCK"};
+    self_printf("选中的置换算法: %s\n\n", algorithm_names[selected_algorithm]);
+    
+    if (init_memory_system_with_algorithm(phys_pages, selected_algorithm) != 0) {
         self_printf("内存系统初始化失败！请检查物理页参数配置。\n");
         return -1;
     }
     self_printf("系统物理内存初始化成功，共分配 %d 页。\n\n", phys_pages);
     // 3. 临时构造一个进程的内存控制块 (MCB) 用于测试
-    // 在最终系统中，这部分代码应该由负责“进程管理”的同学在创建进程时调用
+
     current_mcb = (MemControlBlock*)malloc(sizeof(MemControlBlock));
     current_mcb->pid = 1001;
     current_mcb->seg_count = 2; // 给该测试进程分配 2 个段
@@ -89,5 +102,10 @@ int main() {
     free(current_mcb->segment_table);
     free(current_mcb);
     self_printf("\n模拟测试结束。请将上述输出保存，用于课设文档的【实验模拟结果分析】。\n");
+    self_printf("\n提示：修改 main 函数中的 selected_algorithm 变量来测试不同的置换算法：\n");
+    self_printf("  0 = LRU (Least Recently Used)\n");
+    self_printf("  1 = FIFO (First In First Out)\n");
+    self_printf("  2 = CLOCK (Clock Algorithm)\n");
+    
     return 0;
 }
