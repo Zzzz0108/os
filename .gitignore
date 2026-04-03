@@ -3,4 +3,4 @@
 *.obj
 *.py
 *.txt
-*.img
+src/file/*.img

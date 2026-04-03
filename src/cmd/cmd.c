@@ -1,4 +1,5 @@
 #include "../../inc/cmd.h"
+#include <conio.h>
 #include "../../inc/mem.h"
 //========================
 // self_* system call wrapper layer
@@ -22,6 +23,9 @@ int self_scanf(const char *format, ...) {
 char *self_fgets(char *buffer, int size) {
     return fgets(buffer, size, stdin); // currently use standard fgets
 }
+int self_kbhit(void) { return _kbhit(); }
+int self_getch(void) { return _getch(); }
+
 int self_system(const char *command) {
     return system(command);            // currently use standard system
 }

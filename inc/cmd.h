@@ -12,6 +12,8 @@
 int  self_printf(const char *format, ...);
 int  self_scanf(const char *format, ...);
 char *self_fgets(char *buffer, int size);
+int  self_kbhit(void);
+int  self_getch(void);
 int  self_system(const char *command);
 // String / command parsing helper functions
 void   remove_newline(char *s);

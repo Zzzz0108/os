@@ -64,7 +64,7 @@ void os_create_process(void (*entry)())
     char name[32];
     sprintf(name, "process_%d", proc_id++);
     /* 锟斤拷锟斤拷PCB */
-    PCB* proc = process_create(name, 10);
+    PCB* proc = process_create(name, -1);
     if (proc == NULL)
     {
         os_panic("process_create failed");
