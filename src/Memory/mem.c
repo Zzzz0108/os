@@ -267,6 +267,31 @@ int init_memory_system_with_algorithm(int num_phys_pages, int algorithm) {
     return 0; // 初始化成功
 }
 
+/* 运行时切换页面置换算法 */
+int set_replacement_algorithm(int algorithm) {
+    if (algorithm < 0 || algorithm > 2) {
+        return -1; // 无效算法
+    }
+    
+    if (mem_lock != NULL) {
+        os_mutex_lock(mem_lock);
+    }
+    
+    // 重置算法相关状态
+    if (algorithm == ALGORITHM_CLOCK) {
+        clock_ptr = 0;
+    }
+    // FIFO 和 LRU 不需要特殊重置
+    
+    current_algorithm = (ReplacementAlgorithm)algorithm;
+    
+    if (mem_lock != NULL) {
+        os_mutex_unlock(mem_lock);
+    }
+    
+    return 0;
+}
+
 /* 核心：地址转换与访问模拟 (MMU 模拟) */
 static int translate_and_access(MemControlBlock* mcb, uint32_t logical_addr, uint8_t* data, int is_write) {
     // 1. 地址解析 (10位偏移，14位页号，8位段号)

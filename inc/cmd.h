@@ -40,4 +40,5 @@ void cmd_cat(const char *arg);
 void cmd_rm(const char *arg);
 void cmd_pwd(void);
 void cmd_ps(void);
+void cmd_memalgo(const char *arg);
 char* get_cmd_arg(char *cmd);

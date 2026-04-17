@@ -85,11 +85,46 @@ gcc -finput-charset=UTF-8 -fexec-charset=UTF-8 -Iinc \
 // 初始化内存系统并指定算法
 int init_memory_system_with_algorithm(int num_phys_pages, int algorithm);
 
+// 运行时切换算法
+int set_replacement_algorithm(int algorithm);
+
 // 例如：
 int phys_pages = 16;
 int algo = ALGORITHM_CLOCK;  // 使用 CLOCK 算法
 init_memory_system_with_algorithm(phys_pages, algo);
+
+// 运行时切换
+set_replacement_algorithm(ALGORITHM_LRU);  // 切换到 LRU
 ```
+
+### 方法 4：通过终端命令动态切换
+
+在运行的操作系统终端中，可以使用 `memalgo` 命令来动态切换页面置换算法：
+
+```bash
+# 查看帮助
+help
+
+# 设置为 LRU 算法
+memalgo lru
+# 或
+memalgo 0
+
+# 设置为 FIFO 算法
+memalgo fifo
+# 或
+memalgo 1
+
+# 设置为 CLOCK 算法
+memalgo clock
+# 或
+memalgo 2
+```
+
+**支持的参数：**
+- `0` 或 `lru` 或 `LRU` - 使用 LRU
+- `1` 或 `fifo` 或 `FIFO` - 使用 FIFO
+- `2` 或 `clock` 或 `CLOCK` - 使用 CLOCK
 
 ---
 

@@ -103,6 +103,7 @@ void help(void) {
     self_printf("  dir        Show directory\n");
     self_printf("  sysinfo    System information\n");
     self_printf("  meminfo    Memory system status\n");
+    self_printf("  memalgo    Set memory replacement algorithm\n");
     self_printf("  exit       Exit terminal\n");
 }
 void clear(void) {
@@ -210,4 +211,32 @@ void cmd_pwd(void) {
 
 void cmd_ps(void) {
     print_system_state();
+}
+
+void cmd_memalgo(const char *arg) {
+    if (!arg || !*arg) {
+        self_printf("Usage: memalgo <algorithm>\n");
+        self_printf("Algorithms: 0=LRU, 1=FIFO, 2=CLOCK or lru/fifo/clock\n");
+        return;
+    }
+    
+    int algorithm = -1;
+    if (strings_equal(arg, "0") || strings_equal(arg, "lru") || strings_equal(arg, "LRU")) {
+        algorithm = 0;
+    } else if (strings_equal(arg, "1") || strings_equal(arg, "fifo") || strings_equal(arg, "FIFO")) {
+        algorithm = 1;
+    } else if (strings_equal(arg, "2") || strings_equal(arg, "clock") || strings_equal(arg, "CLOCK")) {
+        algorithm = 2;
+    } else {
+        self_printf("Invalid algorithm: %s\n", arg);
+        self_printf("Supported: 0=LRU, 1=FIFO, 2=CLOCK or lru/fifo/clock\n");
+        return;
+    }
+    
+    if (set_replacement_algorithm(algorithm) == 0) {
+        const char* names[] = {"LRU", "FIFO", "CLOCK"};
+        self_printf("Memory replacement algorithm set to: %s\n", names[algorithm]);
+    } else {
+        self_printf("Failed to set algorithm.\n");
+    }
 }

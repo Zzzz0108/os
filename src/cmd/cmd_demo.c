@@ -35,6 +35,7 @@ void shell_process_entry(void) {
             else if (strings_equal(op, "pwd")) { cmd_pwd(); }
             else if (strings_equal(op, "ps")) { cmd_ps(); }
             else if (strings_equal(op, "free")) { meminfo(); }
+            else if (strings_equal(op, "memalgo")) { cmd_memalgo(get_cmd_arg(cmd_buf)); }
             else if (strings_equal(op, "exit")) { 
                 self_printf("Exiting system...\n"); 
                 exit(0); 

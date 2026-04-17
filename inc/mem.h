@@ -19,6 +19,13 @@ int init_memory_system(int num_phys_pages);
  * 返回值: 0 表示成功，-1 表示失败。
  */
 int init_memory_system_with_algorithm(int num_phys_pages, int algorithm);
+
+/*
+ * 运行时切换页面置换算法。
+ * algorithm: 新的置换算法 (0=LRU, 1=FIFO, 2=CLOCK)。
+ * 返回值: 0 表示成功，-1 表示失败（无效算法）。
+ */
+int set_replacement_algorithm(int algorithm);
 /*
  * 为新进程创建内存控制块（分配段表等核心结构）。
  * pid: 进程ID。

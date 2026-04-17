@@ -61,7 +61,7 @@ cl /utf-8 src/Memory/mem_test.c src/Memory/mem.c src/cmd/cmd.c src/file/file_myf
 - **目录**：\src/cmd/\, \inc/cmd.h- **功能描述**：
   提供命令行主交互循环，接收用户的输入、清理换行并分发到各个底层虚拟子系统。
 - **支持的系统命令**：
-  - **Linux 风格标准指令**：\ls\ (列出目录), \cd\ (切换目录), \mkdir\ (创建目录), mdir\ (删除空目录), \	ouch\ (创建文件), \cat\ (输出文件内容), m\ (删除文件), \pwd\ (打印工作路径), \ps\ (查看所有进程状态), \ree\ (查看内存命中状况及占用)。
+  - **Linux 风格标准指令**：\ls\ (列出目录), \cd\ (切换目录), \mkdir\ (创建目录), mdir\ (删除空目录), \	ouch\ (创建文件), \cat\ (输出文件内容), m\ (删除文件), \pwd\ (打印工作路径), \ps\ (查看所有进程状态), \ree\ (查看内存命中状况及占用), \memalgo\ (设置内存页面置换算法)。
   - **其余基础交互**：\help\ (帮助), \clear\ (清屏), \echo\ (回显文字), \sysinfo\ (系统信息), \exit\ (退出模拟器)。
 
 ### 2. 文件系统 (File System)
