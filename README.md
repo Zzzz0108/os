@@ -12,6 +12,9 @@
 
 ### 推荐：统一使用 build.ps1 构建
 
+首次执行如果遇到 PowerShell 执行策略拦截，可在当前会话临时放行后再执行：
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+
 在项目根目录执行：
 
 ```powershell
@@ -36,12 +39,9 @@
 
 gcc -finput-charset=UTF-8-fexec-charset=UTF-8 -Iinc src/cmd/cmd_demo.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c -o cmd_demo.exe
 
-
 cl /utf-8 src/cmd/cmd_demo.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c /Fe:cmd_demo.exe
 
 .\cmd_demo.exe
-
-
 
 ### 2. 编译并运行内存管理测试用例
 
@@ -49,7 +49,6 @@ cl /utf-8 src/cmd/cmd_demo.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem.c
 cmd：
 
 gcc -finput-charset=UTF-8 -fexec-charset=UTF-8 -Iinc src/Memory/mem_test.c src/Memory/mem.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c -o mem_test.exe
-
 
 cl /utf-8 src/Memory/mem_test.c src/Memory/mem.c src/cmd/cmd.c src/file/file_myfs.c src/Memory/mem_sync_win.c src/process/process.c src/process/process_queue.c src/process/process_scheduler.c src/process/process_interface.c /Fe:mem_test.exe
 
