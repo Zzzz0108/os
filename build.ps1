@@ -19,6 +19,16 @@ function Build-Target {
         [string[]]$Sources
     )
 
+    if (Test-Path $Output) {
+        try {
+            Remove-Item $Output -Force -ErrorAction Stop
+        }
+        catch {
+            $procName = [System.IO.Path]::GetFileNameWithoutExtension($Output)
+            throw "Cannot overwrite '$Output'. It may be in use by a running process ('$procName'). Please stop it and retry (example: Stop-Process -Name $procName -Force)."
+        }
+    }
+
     Write-Host "[BUILD] $Name -> $Output"
     & $Compiler @CommonFlags @Sources -o $Output
     if ($LASTEXITCODE -ne 0) {

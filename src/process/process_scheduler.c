@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../../inc/process_process.h"
 #include "../../inc/process_queue.h"
 #include "../../inc/process_config.h"
@@ -7,6 +8,7 @@
 #include "../../inc/mem.h"
 /* ÿ������ʱ��Ƭ */
 int time_slices[MLFQ_LEVELS] = { TIME_SLICE_Q0, TIME_SLICE_Q1, TIME_SLICE_Q2 };
+static int last_running_pid = -1;
 /* ===============================
    ��������ѡ����һ�����н���
    =============================== */
@@ -39,7 +41,16 @@ void run_process()
             return;
         }
     }
-    self_printf("Running process %d (%s)\n", proc->pid, proc->name);
+    if (process_is_trace_enabled() && proc->pid != last_running_pid) {
+        self_printf("[TRACE] switch to process %d (%s)\n", proc->pid, proc->name);
+    }
+    last_running_pid = proc->pid;
+
+    if (proc->pc != 0) {
+        void (*entry)(void) = (void (*)(void))proc->pc;
+        entry();
+    }
+
     // 【新增】：在这里模拟当前进程正在随机读写内存，从而触发缺页中断
     if (proc->mcb) {
         uint32_t seg = rand() % proc->mcb->seg_count; 
@@ -60,10 +71,13 @@ void run_process()
     /* ���̽��� */
     if (proc->total_time != -1 && proc->remaining_time <= 0)
     {
-        self_printf("Process %d finished\n", proc->pid);
+        if (process_is_trace_enabled()) {
+            self_printf("[TRACE] process %d finished\n", proc->pid);
+        }
         proc->state = PROCESS_TERMINATED;
         process_destroy(proc);
         pm.running = NULL;
+        last_running_pid = -1;
         return;
     }
     int level = proc->queue_level;

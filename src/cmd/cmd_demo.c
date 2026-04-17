@@ -25,17 +25,24 @@ void shell_process_entry(void) {
             if (strings_equal(op, "help")) { help(); } 
             else if (strings_equal(op, "clear")) { clear(); } 
             else if (strings_equal(op, "echo")) { echo(get_echo_message(cmd_buf)); } 
+            else if (strings_equal(op, "sysinfo")) { sysinfo(); }
             else if (strings_equal(op, "ls")) { cmd_ls(get_cmd_arg(cmd_buf)); }
+            else if (strings_equal(op, "dir")) { cmd_dir(get_cmd_arg(cmd_buf)); }
             else if (strings_equal(op, "cd")) { cmd_cd(get_cmd_arg(cmd_buf)); }
             else if (strings_equal(op, "mkdir")) { cmd_mkdir(get_cmd_arg(cmd_buf)); }
             else if (strings_equal(op, "rmdir")) { cmd_rmdir(get_cmd_arg(cmd_buf)); }
             else if (strings_equal(op, "touch")) { cmd_touch(get_cmd_arg(cmd_buf)); }
+            else if (strings_equal(op, "write")) { cmd_write(get_cmd_arg(cmd_buf)); }
             else if (strings_equal(op, "cat")) { cmd_cat(get_cmd_arg(cmd_buf)); }
             else if (strings_equal(op, "rm")) { cmd_rm(get_cmd_arg(cmd_buf)); }
+            else if (strings_equal(op, "tree")) { cmd_tree(get_cmd_arg(cmd_buf)); }
+            else if (strings_equal(op, "info")) { cmd_info(); }
+            else if (strings_equal(op, "format")) { cmd_format(); }
             else if (strings_equal(op, "pwd")) { cmd_pwd(); }
             else if (strings_equal(op, "ps")) { cmd_ps(); }
-            else if (strings_equal(op, "free")) { meminfo(); }
+            else if (strings_equal(op, "free") || strings_equal(op, "meminfo")) { meminfo(); }
             else if (strings_equal(op, "memalgo")) { cmd_memalgo(get_cmd_arg(cmd_buf)); }
+            else if (strings_equal(op, "trace")) { cmd_trace(get_cmd_arg(cmd_buf)); }
             else if (strings_equal(op, "exit")) { 
                 self_printf("Exiting system...\n"); 
                 exit(0); 

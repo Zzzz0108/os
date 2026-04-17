@@ -97,14 +97,27 @@ char *get_echo_message(char *cmd) {
 //========================
 void help(void) {
     self_printf("Available commands:\n");
-    self_printf("  help       Show help\n");
-    self_printf("  clear      Clear screen\n");
-    self_printf("  echo ...   Print text\n");
-    self_printf("  dir        Show directory\n");
-    self_printf("  sysinfo    System information\n");
-    self_printf("  meminfo    Memory system status\n");
-    self_printf("  memalgo    Set memory replacement algorithm\n");
-    self_printf("  exit       Exit terminal\n");
+    self_printf("  help                    Show help\n");
+    self_printf("  clear                   Clear screen\n");
+    self_printf("  echo <text>             Print text\n");
+    self_printf("  sysinfo                 System information\n");
+    self_printf("  meminfo | free          Memory system status\n");
+    self_printf("  memalgo <algo>          Set replacement algorithm\n");
+    self_printf("  trace <on|off|status>   Scheduler trace control\n");
+    self_printf("  ls [path] | dir [path]  List directory\n");
+    self_printf("  cd [path]               Change directory\n");
+    self_printf("  mkdir <dir>             Create directory\n");
+    self_printf("  rmdir <dir>             Remove empty directory\n");
+    self_printf("  touch <file>            Create file\n");
+    self_printf("  write <file> <content>  Write file\n");
+    self_printf("  cat <file>              Read file\n");
+    self_printf("  rm <file>               Remove file\n");
+    self_printf("  tree [path]             Show tree view\n");
+    self_printf("  info                    Show filesystem info\n");
+    self_printf("  format                  Format filesystem\n");
+    self_printf("  pwd                     Print current path\n");
+    self_printf("  ps                      Show process states\n");
+    self_printf("  exit                    Exit terminal\n");
 }
 void clear(void) {
     self_system("cls");
@@ -211,6 +224,78 @@ void cmd_pwd(void) {
 
 void cmd_ps(void) {
     print_system_state();
+}
+
+void cmd_write(const char *arg) {
+    char file_path[MAX_CMD] = {0};
+    const char *content_start;
+    int i = 0;
+
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    if (!arg || !*arg) {
+        self_printf("Usage: write <file> <content>\n");
+        return;
+    }
+
+    while (arg[i] != '\0' && arg[i] != ' ' && arg[i] != '\t' && i < MAX_CMD - 1) {
+        file_path[i] = arg[i];
+        i++;
+    }
+    file_path[i] = '\0';
+
+    while (arg[i] == ' ' || arg[i] == '\t') {
+        i++;
+    }
+    content_start = arg + i;
+
+    if (file_path[0] == '\0' || *content_start == '\0') {
+        self_printf("Usage: write <file> <content>\n");
+        return;
+    }
+
+    myfs_write_file(&global_fs, file_path, content_start);
+}
+
+void cmd_tree(const char *arg) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    if (arg && *arg) myfs_tree(&global_fs, arg, 0);
+    else myfs_tree(&global_fs, NULL, 0);
+}
+
+void cmd_info(void) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    myfs_info(&global_fs);
+}
+
+void cmd_format(void) {
+    if (!fs_ready) { self_printf("FS not mounted.\n"); return; }
+    myfs_format(&global_fs);
+}
+
+void cmd_dir(const char *arg) {
+    cmd_ls(arg);
+}
+
+void cmd_trace(const char *arg) {
+    if (!arg || !*arg || strings_equal(arg, "status")) {
+        self_printf("Trace is %s\n", process_is_trace_enabled() ? "ON" : "OFF");
+        self_printf("Usage: trace <on|off|status>\n");
+        return;
+    }
+
+    if (strings_equal(arg, "on")) {
+        process_set_trace_enabled(1);
+        self_printf("Scheduler trace enabled.\n");
+        return;
+    }
+
+    if (strings_equal(arg, "off")) {
+        process_set_trace_enabled(0);
+        self_printf("Scheduler trace disabled.\n");
+        return;
+    }
+
+    self_printf("Usage: trace <on|off|status>\n");
 }
 
 void cmd_memalgo(const char *arg) {

@@ -1,6 +1,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 #include <stdio.h>
+#include <stdint.h>
 #include "process_config.h"
 #include "process_queue.h"
 #include "mem.h"
@@ -23,7 +24,7 @@ typedef struct PCB {
     int remaining_time;
     int time_slice_used;
     /* CPU状态（模拟） */
-    int pc;
+    intptr_t pc;
     int registers[8];
     /* �ڴ���Ϣ */
     MemControlBlock* mcb;
@@ -50,6 +51,8 @@ void process_wakeup(PCB* proc);
 /* ========= 调度 ========= */
 PCB* scheduler();
 void run_process();
+void process_set_trace_enabled(int enabled);
+int process_is_trace_enabled(void);
 /* ========= 调试 ========= */
 void print_process(PCB* proc);
 void print_system_state();

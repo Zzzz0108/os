@@ -9,6 +9,17 @@
 #include "../../inc/mem.h"
 /* ========= ȫ�ֽ��̹����� ========= */
 ProcessManager pm;
+static int g_process_trace_enabled = 0;
+
+void process_set_trace_enabled(int enabled)
+{
+    g_process_trace_enabled = enabled ? 1 : 0;
+}
+
+int process_is_trace_enabled(void)
+{
+    return g_process_trace_enabled;
+}
 /* ============================= */
 /* ��ʼ�����̹�����              */
 /* ============================= */
@@ -63,6 +74,9 @@ void process_block(PCB* proc)
         return;
     proc->state = PROCESS_BLOCKED;
     enqueue(&pm.blocked, proc);
+    if (process_is_trace_enabled()) {
+        self_printf("[TRACE] process %d blocked\n", proc->pid);
+    }
 }
 /* ============================= */
 /* ���ѽ���                      */
@@ -75,6 +89,9 @@ void process_wakeup(PCB* proc)
     proc->state = PROCESS_READY;
     proc->queue_level = 0;
     enqueue(&pm.ready[0], proc);
+    if (process_is_trace_enabled()) {
+        self_printf("[TRACE] process %d wakeup\n", proc->pid);
+    }
 }
 /* ============================= */
 /* ��ӡ����������Ϣ              */

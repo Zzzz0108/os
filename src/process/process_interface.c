@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include "../../inc/process_interface.h"
 #include "../../inc/process_process.h"
@@ -70,7 +71,7 @@ void os_create_process(void (*entry)())
         os_panic("process_create failed");
     }
     /* 锟斤拷锟斤拷锟斤拷诘锟街凤拷锟侥ｏ拷猓 */
-    proc->pc = (int)(long)entry;
+    proc->pc = (intptr_t)entry;
 }
 /* 锟斤拷锟斤拷锟矫筹拷CPU */
 void os_yield()
