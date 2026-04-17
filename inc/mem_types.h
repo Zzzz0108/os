@@ -9,6 +9,7 @@ typedef struct {
     uint8_t valid;      // 驻留位：1表示当前页在物理内存中，0表示在磁盘(发生缺页中断)
     uint8_t dirty;      // 修改位：1表示内容被写过，页面置换时必须写回磁盘
     uint8_t access;     // 访问位：用于实现 LRU 或 Clock 页面置换算法
+    uint8_t swapped;    // 是否已在交换区拥有有效副本
 } PTE;
 /* * 段表项 (Segment Table Entry, STE)
  * 记录进程逻辑段的属性，实现内存隔离与越界保护

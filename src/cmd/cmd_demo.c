@@ -1,7 +1,7 @@
 #include "../../inc/cmd.h"
 #include "../../inc/process_interface.h"
 #include "../../inc/process_process.h"
-#include <windows.h>
+#include "../../inc/platform_time.h"
 
 static char cmd_buf[MAX_CMD];
 static int cmd_len = 0;
@@ -70,7 +70,7 @@ int main(void) {
     // 3. Kernel Main Scheduling Loop (Control Inversion!)
     while (1) {
         os_yield(); // Drive the CPU scheduler to run one time slice
-        Sleep(5);   // Wait 5ms simulating hardware crystal oscillator tick
+        os_sleep_ms(5);   // Wait 5ms simulating hardware crystal oscillator tick
     }
     return 0;
 }

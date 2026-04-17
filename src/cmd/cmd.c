@@ -138,14 +138,13 @@ void welcome(void) {
 
 #include "../../inc/file_myfs.h"
 #include "../../inc/process_process.h"
-#include <windows.h>
+#include "../../inc/platform_console.h"
 
 static MyFS global_fs;
 static int fs_ready = 0;
 
 void os_terminal_init(void) {
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
+    os_console_enable_utf8();
     if (myfs_mount(&global_fs, "src/file/mydisk.img") == 0) {
         fs_ready = 1;
     } else {

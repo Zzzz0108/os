@@ -10,6 +10,25 @@
 - **环境要求**：Windows 操作系统
 - **编码要求**：为了防止中文字符乱码与报错，编译时统一需附加 \/utf-8\ 参数。
 
+### 推荐：统一使用 build.ps1 构建
+
+在项目根目录执行：
+
+```powershell
+# 构建全部可执行文件
+.\build.ps1
+
+# 仅构建单个目标
+.\build.ps1 -Target cmd_demo
+.\build.ps1 -Target mem_test
+.\build.ps1 -Target mem_test_compare
+.\build.ps1 -Target file_main
+.\build.ps1 -Target create_disk
+
+# 清理构建产物
+.\build.ps1 -Target clean
+```
+
 ### 1. 编译并运行系统终端 (Shell)
 
 该终端整合了全部的文件系统操作、内存状态与进程状态检测接口。

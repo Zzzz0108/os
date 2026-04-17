@@ -20,6 +20,7 @@ static int total_phys_pages = 0;
 
 /* 逆向映射表：用于页面置换时，通过物理页框号反查对应的 PTE */
 static PTE* frame_reverse_map[MAX_PHYS_PAGES];
+static uint32_t swap_slot_bitmap[(SWAP_PAGES_MAX + 31) / 32];
 
 /* 全局时钟：用于 LRU 算法记录最后访问时间 */
 static uint32_t global_time = 0;
@@ -35,6 +36,56 @@ static int memory_accesses = 0;
 static ReplacementAlgorithm current_algorithm = ALGORITHM_LRU;
 static int clock_ptr = 0;  // CLOCK 算法指针
 static uint32_t fifo_install_time[MAX_PHYS_PAGES];  // FIFO 页面装入时间戳
+
+/* 内部辅助函数：分配一个空闲 swap 槽位 */
+static int allocate_swap_slot() {
+    for (int i = 0; i < SWAP_PAGES_MAX; i++) {
+        int word = i / 32;
+        int bit = i % 32;
+        if ((swap_slot_bitmap[word] & (1u << bit)) == 0) {
+            swap_slot_bitmap[word] |= (1u << bit);
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* 内部辅助函数：释放 swap 槽位 */
+static void free_swap_slot(int slot) {
+    if (slot < 0 || slot >= SWAP_PAGES_MAX) {
+        return;
+    }
+    swap_slot_bitmap[slot / 32] &= ~(1u << (slot % 32));
+}
+
+/* 将给定物理页框换出到 swap */
+static int swap_out_frame(int victim_frame) {
+    PTE* victim_pte = frame_reverse_map[victim_frame];
+    int swap_slot;
+
+    if (victim_pte == NULL) {
+        return -1;
+    }
+
+    swap_slot = victim_pte->swapped ? (int)victim_pte->frame_num : allocate_swap_slot();
+    if (swap_slot < 0) {
+        return -1;
+    }
+
+    if (victim_pte->dirty || !victim_pte->swapped) {
+        memcpy(swap_space + (swap_slot * PAGE_SIZE),
+               physical_memory + (victim_frame * PAGE_SIZE),
+               PAGE_SIZE);
+    }
+
+    victim_pte->frame_num = (uint32_t)swap_slot;
+    victim_pte->valid = 0;
+    victim_pte->dirty = 0;
+    victim_pte->swapped = 1;
+    frame_reverse_map[victim_frame] = NULL;
+
+    return victim_frame;
+}
 
 /* 内部辅助函数：分配一个空闲物理页框 */
 static int allocate_free_frame() {
@@ -61,23 +112,11 @@ static int execute_lru_replacement() {
         }
     }
 
-    if (victim_frame != -1) {
-        PTE* victim_pte = frame_reverse_map[victim_frame];
-        
-        // 如果被修改过 (dirty == 1)，需要写回 Swap 区 (这里简化为只修改标记)
-        if (victim_pte->dirty) {
-            // TODO: 实际应用中需要 memcpy 物理内存数据到 s wap_space
-            victim_pte->dirty = 0; 
-        }
-        
-        // 更新被换出页的 PTE 状态
-        victim_pte->valid = 0;
-        // victim_pte->frame_num = 分配给它的 Swap 扇区号 (此处省略具体 Swap 管理)
-        
-        frame_reverse_map[victim_frame] = NULL;
+    if (victim_frame == -1) {
+        return -1;
     }
-    
-    return victim_frame;
+
+    return swap_out_frame(victim_frame);
 }
 
 /* 内部辅助函数：FIFO 页面置换算法 */
@@ -94,20 +133,12 @@ static int execute_fifo_replacement() {
         }
     }
 
-    if (victim_frame != -1) {
-        PTE* victim_pte = frame_reverse_map[victim_frame];
-        
-        if (victim_pte->dirty) {
-            victim_pte->dirty = 0;
-        }
-        
-        // 更新被换出页的 PTE 状态
-        victim_pte->valid = 0;
-        frame_reverse_map[victim_frame] = NULL;
-        fifo_install_time[victim_frame] = 0;
+    if (victim_frame == -1) {
+        return -1;
     }
-    
-    return victim_frame;
+
+    fifo_install_time[victim_frame] = 0;
+    return swap_out_frame(victim_frame);
 }
 
 /* 内部辅助函数：CLOCK 页面置换算法 */
@@ -122,13 +153,8 @@ static int execute_clock_replacement() {
             if (pte->access == 0) {
                 // 找到可置换的页（访问位为0）
                 int victim_frame = clock_ptr;
-                if (pte->dirty) {
-                    pte->dirty = 0;
-                }
-                pte->valid = 0;
-                frame_reverse_map[clock_ptr] = NULL;
                 clock_ptr = (clock_ptr + 1) % total_phys_pages;
-                return victim_frame;
+                return swap_out_frame(victim_frame);
             } else {
                 // 清除访问位，继续扫描
                 pte->access = 0;
@@ -140,18 +166,9 @@ static int execute_clock_replacement() {
     }
     
     // 第二轮循环：所有访问位都被清除，置换当前位置的页
-    if (frame_reverse_map[clock_ptr] != NULL) {
-        PTE* victim_pte = frame_reverse_map[clock_ptr];
-        if (victim_pte->dirty) {
-            victim_pte->dirty = 0;
-        }
-        victim_pte->valid = 0;
-        frame_reverse_map[clock_ptr] = NULL;
-    }
-    
     int victim_frame = clock_ptr;
     clock_ptr = (clock_ptr + 1) % total_phys_pages;
-    return victim_frame;
+    return swap_out_frame(victim_frame);
 }
 
 /* 统一置换算法调用接口 */
@@ -176,9 +193,20 @@ static int handle_page_fault(PTE* pte) {
     if (frame == -1) {
         // 物理内存已满，触发页面置换
         frame = execute_replacement();
+        if (frame == -1) {
+            return -1;
+        }
     }
-    
-    // TODO: 从 Swap 区将数据读入 physical_memory + (frame * PAGE_SIZE)
+
+    if (pte->swapped) {
+        memcpy(physical_memory + (frame * PAGE_SIZE),
+               swap_space + (pte->frame_num * PAGE_SIZE),
+               PAGE_SIZE);
+        free_swap_slot((int)pte->frame_num);
+        pte->swapped = 0;
+    } else {
+        memset(physical_memory + (frame * PAGE_SIZE), 0, PAGE_SIZE);
+    }
     
     // 更新页表项
     pte->frame_num = frame;
@@ -217,8 +245,10 @@ int init_memory_system_with_algorithm(int num_phys_pages, int algorithm) {
     if (!physical_memory || !swap_space) return -1;
     
     memset(physical_memory, 0, total_phys_pages * PAGE_SIZE);
+    memset(swap_space, 0, SWAP_PAGES_MAX * PAGE_SIZE);
     memset(frame_reverse_map, 0, sizeof(frame_reverse_map));
     memset(fifo_install_time, 0, sizeof(fifo_install_time));
+    memset(swap_slot_bitmap, 0, sizeof(swap_slot_bitmap));
     
     free_frame_bitmap = 0;
     page_faults = 0;
@@ -228,6 +258,10 @@ int init_memory_system_with_algorithm(int num_phys_pages, int algorithm) {
     current_algorithm = (ReplacementAlgorithm)algorithm;
     if (current_algorithm == ALGORITHM_CLOCK) {
         clock_ptr = 0;
+    }
+
+    if (mem_lock == NULL) {
+        mem_lock = os_mutex_create();
     }
     
     return 0; // 初始化成功
@@ -250,7 +284,9 @@ static int translate_and_access(MemControlBlock* mcb, uint32_t logical_addr, uin
     
     // 4. 缺页检查
     if (pte->valid == 0) {
-        handle_page_fault(pte); // 触发缺页中断
+        if (handle_page_fault(pte) != 0) {
+            return -1;
+        }
     }
     
     // 5. 更新状态与执行读写
@@ -267,17 +303,24 @@ static int translate_and_access(MemControlBlock* mcb, uint32_t logical_addr, uin
 }
 
 int read_memory(MemControlBlock* mcb, uint32_t logical_addr, uint8_t* out_data) {
-    // 课设要求线程间必须同步 [cite: 68]
-    // os_mutex_lock(mem_lock); // 暂定，需在外部或此处加锁
+    if (mem_lock != NULL) {
+        os_mutex_lock(mem_lock);
+    }
     int res = translate_and_access(mcb, logical_addr, out_data, 0);
-    // os_mutex_unlock(mem_lock);
+    if (mem_lock != NULL) {
+        os_mutex_unlock(mem_lock);
+    }
     return res;
 }
 
 int write_memory(MemControlBlock* mcb, uint32_t logical_addr, uint8_t data) {
-    // os_mutex_lock(mem_lock);
+    if (mem_lock != NULL) {
+        os_mutex_lock(mem_lock);
+    }
     int res = translate_and_access(mcb, logical_addr, &data, 1);
-    // os_mutex_unlock(mem_lock);
+    if (mem_lock != NULL) {
+        os_mutex_unlock(mem_lock);
+    }
     return res;
 }
 
@@ -295,6 +338,10 @@ void print_mem_status(void) {
             break;
     }
     
+    if (mem_lock != NULL) {
+        os_mutex_lock(mem_lock);
+    }
+
     printf("--- 内存系统状态 ---\n");
     printf("置换算法: %s\n", algo_name);
     printf("总物理页: %d, 页面大小: 1KB\n", total_phys_pages);
@@ -304,6 +351,10 @@ void print_mem_status(void) {
     }
     printf("空闲页框位图: 0x%08X\n", free_frame_bitmap);
     printf("--------------------\n");
+
+    if (mem_lock != NULL) {
+        os_mutex_unlock(mem_lock);
+    }
 }
 
 /* 为新进程分配内存控制块及初始页表 */
@@ -338,6 +389,8 @@ void destroy_process_memory(MemControlBlock* mcb) {
                 // 清除物理页框的占用位图
                 free_frame_bitmap &= ~(1 << pte->frame_num);
                 frame_reverse_map[pte->frame_num] = NULL;
+            } else if (pte->swapped) {
+                free_swap_slot((int)pte->frame_num);
             }
         }
         free(mcb->segment_table[i].page_table);

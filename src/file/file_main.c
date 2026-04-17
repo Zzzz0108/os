@@ -10,6 +10,7 @@ void print_help() {
     self_printf("  mkdir <目录名>       - 创建目录\n");
     self_printf("  rmdir <目录名>       - 删除空目录\n");
     self_printf("  write <文件名> <内容> - 写入文件\n");
+    self_printf("  read <文件名>         - 读取文件\n");
     self_printf("  ls [目录]            - 列出文件/目录\n");
     self_printf("  cd <目录>            - 切换目录\n");
     self_printf("  pwd                  - 显示当前目录\n");
@@ -90,6 +91,9 @@ int main() {
             } else {
                 self_printf("用法: write <文件名> <内容>\n");
             }
+        }
+        else if (strncmp(cmd, "read ", 5) == 0) {
+            myfs_read_file(&fs, cmd + 5);
         }
         else if (strcmp(cmd, "format") == 0) {
             self_printf("确定要格式化吗？(y/n): ");

@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
 #include <time.h>
 #include "../../inc/mem.h"
-#include "../../inc/mem_sync.h"
 #include "../../inc/cmd.h"
+#include "../../inc/platform_thread.h"
+#include "../../inc/platform_time.h"
 
 /* 置换算法枚举 */
 #define ALGORITHM_LRU 0
@@ -12,17 +12,15 @@
 #define ALGORITHM_CLOCK 2
 
 /* 全局共享资源 */
-os_mutex_t mem_lock;
 MemControlBlock* current_mcb;
 int simulation_running = 1;
 /* 线程1：模拟内存活动的线程 */
-DWORD WINAPI MemoryAccessThread(LPVOID lpParam) {
+unsigned int MemoryAccessThread(void* lpParam) {
+    (void)lpParam;
     srand((unsigned)time(NULL));
     // 模拟 50 次内存访问操作
     for (int i = 0; i < 50; i++) { 
-        // 1. 获取锁，保证与监控线程同步
-        os_mutex_lock(mem_lock);
-        // 2. 通过随机数产生一个访问序列
+        // 通过随机数产生一个访问序列
         uint32_t seg = rand() % current_mcb->seg_count; 
         uint32_t page = rand() % 12; // 故意随机到较大的页号，以触发缺页和LRU置换
         uint32_t offset = rand() % PAGE_SIZE;
@@ -39,30 +37,25 @@ DWORD WINAPI MemoryAccessThread(LPVOID lpParam) {
             self_printf("[访问线程] 执行读操作 -> 逻辑地址: 0x%08X\n", logical_addr);
             read_memory(current_mcb, logical_addr, &read_data);
         }
-        // 3. 释放锁
-        os_mutex_unlock(mem_lock);
-        Sleep(50); // 稍作休眠，模拟进程执行间隔，并让出CPU给监控线程
+        os_sleep_ms(50); // 稍作休眠，模拟进程执行间隔，并让出CPU给监控线程
     }
     simulation_running = 0;
     return 0;
 }
 /* 线程2：跟踪和打印内存信息的线程 */
-DWORD WINAPI MonitorThread(LPVOID lpParam) {
+unsigned int MonitorThread(void* lpParam) {
+    (void)lpParam;
     while (simulation_running) {
-        os_mutex_lock(mem_lock);
         self_printf("\n========== [监控线程] 捕获内存快照 ==========\n");
         print_mem_status();
-        os_mutex_unlock(mem_lock);
-        Sleep(300); // 每 300ms 打印一次内存状态
+        os_sleep_ms(300); // 每 300ms 打印一次内存状态
     }
     return 0;
 }
 int main() {
     self_printf("=== 操作系统课程设计：段页式内存管理模拟 ===\n");
     self_printf("支持多种置换算法：LRU / FIFO / CLOCK\n\n");
-    // 1. 初始化同步锁
-    mem_lock = os_mutex_create();
-    // 2. 初始化内存系统 (课设要求容量限制为4页到32页)
+    // 1. 初始化内存系统 (课设要求容量限制为4页到32页)
     int phys_pages = 8; // 8 页物理内存，更容易触发置换
     // 算法配置：可以修改这个值来测试不同的置换算法
     int selected_algorithm = ALGORITHM_LRU;
@@ -75,7 +68,7 @@ int main() {
         return -1;
     }
     self_printf("系统物理内存初始化成功，共分配 %d 页。\n\n", phys_pages);
-    // 3. 临时构造一个进程的内存控制块 (MCB) 用于测试
+    // 2. 临时构造一个进程的内存控制块 (MCB) 用于测试
 
     current_mcb = (MemControlBlock*)malloc(sizeof(MemControlBlock));
     current_mcb->pid = 1001;
@@ -87,16 +80,15 @@ int main() {
     // 段 1：数据段，分配 16 个逻辑页 (逻辑页总数 24 > 物理页 8，必然触发置换)
     current_mcb->segment_table[1].length = 16;
     current_mcb->segment_table[1].page_table = (PTE*)calloc(16, sizeof(PTE));
-    // 4. 创建双线程进行并发模拟
-    HANDLE hAccess = CreateThread(NULL, 0, MemoryAccessThread, NULL, 0, NULL);
-    HANDLE hMonitor = CreateThread(NULL, 0, MonitorThread, NULL, 0, NULL);
-    // 5. 等待模拟测试结束
-    WaitForSingleObject(hAccess, INFINITE);
-    WaitForSingleObject(hMonitor, INFINITE);
-    // 6. 清理资源 (良好的C语言习惯)
-    CloseHandle(hAccess);
-    CloseHandle(hMonitor);
-    os_mutex_destroy(mem_lock);
+    // 3. 创建双线程进行并发模拟
+    os_thread_t hAccess = os_thread_create(MemoryAccessThread, NULL);
+    os_thread_t hMonitor = os_thread_create(MonitorThread, NULL);
+    // 4. 等待模拟测试结束
+    os_thread_join(hAccess);
+    os_thread_join(hMonitor);
+    // 5. 清理资源 (良好的C语言习惯)
+    os_thread_close(hAccess);
+    os_thread_close(hMonitor);
     free(current_mcb->segment_table[0].page_table);
     free(current_mcb->segment_table[1].page_table);
     free(current_mcb->segment_table);

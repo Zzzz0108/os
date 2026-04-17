@@ -1183,6 +1183,109 @@ int myfs_info(MyFS* fs) {
 }
 // 读取文件（简单实现）
 int myfs_read_file(MyFS* fs, const char* path) {
-    self_printf("读取文件功能暂未实现\n");
-    return -1;
+    unsigned char sector[SECTOR_SIZE];
+    char dir_path[256] = {0};
+    char file_name[256] = {0};
+    char name8[8] = {0}, ext3[3] = {0};
+    int dir_cluster;
+    int found = 0;
+    DirEntry target_entry;
+
+    if (path == NULL || strlen(path) == 0) {
+        self_printf("Usage: cat <file>\n");
+        return -1;
+    }
+
+    split_path(path, dir_path, file_name);
+    name_to_fat(file_name, name8, ext3);
+
+    if (strlen(dir_path) == 0) {
+        dir_cluster = fs->current_cluster;
+    } else {
+        dir_cluster = find_dir_cluster(fs, dir_path);
+    }
+
+    if (dir_cluster < 0) {
+        self_printf("错误: 目录不存在: %s\n", dir_path);
+        return -1;
+    }
+
+    if (dir_cluster == 0) {
+        for (int i = 0; i < ROOT_DIR_SECTORS && !found; i++) {
+            read_sector(fs, fs->root_start + i, sector);
+            DirEntry* entries = (DirEntry*)sector;
+            for (int j = 0; j < SECTOR_SIZE / 32; j++) {
+                if (entries[j].name[0] == 0 || entries[j].name[0] == 0xE5) {
+                    continue;
+                }
+                if (memcmp(entries[j].name, name8, 8) == 0 &&
+                    memcmp(entries[j].ext, ext3, 3) == 0 &&
+                    !(entries[j].attr & ATTR_DIRECTORY)) {
+                    target_entry = entries[j];
+                    found = 1;
+                    break;
+                }
+            }
+        }
+    } else {
+        int sector_num = fs->data_start + (dir_cluster - 2) * SECTORS_PER_CLUSTER;
+        read_sector(fs, sector_num, sector);
+        DirEntry* entries = (DirEntry*)sector;
+        for (int j = 2; j < SECTOR_SIZE / 32 && !found; j++) {
+            if (entries[j].name[0] == 0 || entries[j].name[0] == 0xE5) {
+                continue;
+            }
+            if (memcmp(entries[j].name, name8, 8) == 0 &&
+                memcmp(entries[j].ext, ext3, 3) == 0 &&
+                !(entries[j].attr & ATTR_DIRECTORY)) {
+                target_entry = entries[j];
+                found = 1;
+                break;
+            }
+        }
+    }
+
+    if (!found) {
+        self_printf("文件不存在: %s\n", path);
+        return -1;
+    }
+
+    if (target_entry.file_size == 0) {
+        self_printf("\n");
+        return 0;
+    }
+
+    char* content = (char*)malloc(target_entry.file_size + 1);
+    if (content == NULL) {
+        self_printf("错误: 内存分配失败\n");
+        return -1;
+    }
+
+    int current_cluster = target_entry.first_cluster;
+    unsigned long bytes_read = 0;
+    while (bytes_read < target_entry.file_size && current_cluster >= 2 && current_cluster < 0xFFF8) {
+        int sector_num = fs->data_start + (current_cluster - 2) * SECTORS_PER_CLUSTER;
+        if (read_sector(fs, sector_num, sector) != 0) {
+            free(content);
+            self_printf("错误: 读取磁盘扇区失败\n");
+            return -1;
+        }
+
+        unsigned long to_copy = target_entry.file_size - bytes_read;
+        if (to_copy > SECTOR_SIZE) {
+            to_copy = SECTOR_SIZE;
+        }
+        memcpy(content + bytes_read, sector, to_copy);
+        bytes_read += to_copy;
+
+        if (current_cluster == 0xFFF) {
+            break;
+        }
+        current_cluster = fs->fat[current_cluster];
+    }
+
+    content[target_entry.file_size] = '\0';
+    self_printf("%s\n", content);
+    free(content);
+    return 0;
 }
